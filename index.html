@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>DIGGERT</title>
+		<style type="text/css">
+			#content {
+				width:  840px;
+				margin: 0 auto;				
+			}
+
+			#game {
+				position: absolute;
+				z-index: 101;
+				/* Don't set canvas dimensions using CCS - contents will stretch */
+			}
+
+			#map {
+				position: absolute;
+				z-index: 100;
+				/* Don't set canvas dimensions using CCS - contents will stretch */
+			}		
+
+			#debug {
+				display:  none;
+				position: absolute;
+				top:      305px;
+				width:    838px;
+				border:   1px solid #000000;
+				padding:  20px 0;
+			}
+		</style>
+		<script type="text/javascript" src="frametimer.js"></script>
+		<script type="text/javascript" src="animation.js"></script>
+		<script type="text/javascript" src="digger.js"></script>
+		<script type="text/javascript" src="map.js"></script>
+		<script type="text/javascript" src="core.js"></script>
+		<script type="text/javascript" src="debug.js"></script>
+		<script type="text/javascript">
+			window.onload = function() {
+				var gameCanvas = document.getElementById("game");
+				var mapCanvas  = document.getElementById("map");
+				var debugPanel = document.getElementById("debug");
+
+				var frametimer = new FrameTimer();
+				
+				Debug.enabled = true;
+
+				if (Debug.enabled) {
+					Debug.setFrameTimer(frametimer);
+					Debug.setFpsTarget(document.getElementById("fps"));
+
+					debugPanel.style.display = "block";
+				}
+				
+				debug("Document.onload");
+				var map  = new Map(mapCanvas);
+
+				var core = new Core(gameCanvas, frametimer, map);
+				core.reset();
+
+				setInterval( function() { core.step(); } , 0);				
+			};
+		</script>
+	</head>
+	<body>
+		<div id="content">
+			<canvas id="map" width="840" height="305">NO CANVAS</canvas>
+			<canvas id="game" width="840" height="305">NO CANVAS</canvas>
+			<div id="debug">
+				FPS: <input type="text" id="fps" />
+			</div>
+		</div>
+	</body>
+</html>
