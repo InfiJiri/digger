@@ -32,6 +32,7 @@
 		<script type="text/javascript" src="frametimer.js"></script>
 		<script type="text/javascript" src="animation.js"></script>
 		<script type="text/javascript" src="digger.js"></script>
+		<script type="text/javascript" src="emerald.js"></script>
 		<script type="text/javascript" src="map.js"></script>
 		<script type="text/javascript" src="core.js"></script>
 		<script type="text/javascript" src="debug.js"></script>
@@ -41,24 +42,22 @@
 				var mapCanvas  = document.getElementById("map");
 				var debugPanel = document.getElementById("debug");
 
-				var frametimer = new FrameTimer();
+				var frameTimer = new FrameTimer();
 				
 				Debug.enabled = true;
 
 				if (Debug.enabled) {
-					Debug.setFrameTimer(frametimer);
+					Debug.setFrameTimer(frameTimer);
 					Debug.setFpsTarget(document.getElementById("fps"));
 
 					debugPanel.style.display = "block";
 				}
-				
+
 				debug("Document.onload");
 				var map  = new Map(mapCanvas);
 
-				var core = new Core(gameCanvas, frametimer, map);
-				core.reset();
-
-				setInterval( function() { core.step(); } , 0);				
+				var core = new Core(gameCanvas, frameTimer, map);
+				core.reset(); // Start game
 			};
 		</script>
 	</head>
