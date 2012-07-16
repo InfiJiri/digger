@@ -5,11 +5,10 @@ var Core = function(canvas, frameTimer, map) {
 	this._context    = canvas.getContext("2d");
 	this._frametimer = frameTimer;
 	this.map         = map;
-	/*document.onkeydown = function(e) {
 
-	}*/
 	var digger = new Digger();
 
+	// FIXME
 	// Hmpf the handling of these key events should be
 	// in the Digger class, but it doesn't work (probably
 	// some reference / clone issue)
@@ -57,8 +56,7 @@ Core.prototype = {
 	ispaused:      false,
 	fps:           50,
 	map:           null,
-	digger:        null,
-	entities:      [],
+	digger:        null, // Player
 	togglePause:   function() {
 		debug("Core.togglePause(pause:" + (this._intervalId===false ? "off" : "on") + ")");
 
@@ -79,39 +77,7 @@ Core.prototype = {
 			this._intervalId = false;
 		}
 
-		this.entities = [];
-
-		// FIXME (unacceptable) duplicate code
-		var data = this.map.getStart();
-		
-		var B = 3;	// Bonus
-		var D = 4;	// Digger
-		var E = 5;  // Emerald
-		var G = 6;  // Gold
-		var H = 7;  // Hobbin
-		var N = 8;  // Nobbin
-
-		var B = 3;	// Bonus
-		var D = 4;	// Digger
-		var E = 5;  // Emerald
-		var G = 6;  // Gold
-		var H = 7;  // Hobbin
-		var N = 8;  // Nobbin
-
-		var numcols = 20;
-		for( var y=0; y<data.length/numcols; y++ ) {
-			var offset = y * numcols;
-			for( var x=0; x<numcols; x++ ) {
-				switch( data[offset + x] ) {
-					case E:
-						var emerald = new Emerald();
-						emerald.x = x * 25;
-						emerald.y = y * 25;
-						this.entities.push(emerald)
-						break;
-				}
-			}
-		}
+		this.map.reset();
 		
 		// Undo pause
 		this.togglePause();
@@ -131,8 +97,8 @@ Core.prototype = {
 	draw: function(interpolation) {
 		this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-		for( var i=0; i<this.entities.length; i++ ) {
-			var entity = this.entities[i];
+		for( var i=0; i<this.map.entities.length; i++ ) {
+			var entity = this.map.entities[i];
 
 			entity.draw(this._context, interpolation);
 		}
