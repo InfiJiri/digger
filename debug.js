@@ -13,7 +13,7 @@ var Debug = {
 	setFpsTarget: function(target) {
 		this._fpsTarget = target;
 	},
-	drawFps: function() {
+	updateFps: function() {
 		if (this.enabled) {
 			this._fpsTarget.value = this._frametimer.getFps();
 		}

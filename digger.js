@@ -11,10 +11,10 @@ Digger.prototype = {
 	width:  10,
 	animate: function(context, interpolation) {
 		context.fillStyle = "#ffffff";
-		context.fillRect(this.xy, this.y + this.vy * interpolation, this.width, this.height);
+		
+		context.fillRect(this.x + this.vx * interpolation, this.y + this.vy * interpolation, this.width, this.height);
 	},
 	draw: function(context, interpolation) {
-		interpolation = 20;
 		this.animate(context, interpolation);
 	}
 }
