@@ -13,7 +13,9 @@ FrameTimer.prototype = {
  
         return seconds;
     },
- 
+	getFps: function() {
+		return parseInt(this._frameSpacing ? 1000 / this._frameSpacing : 0);
+	},
     tick: function() {
         var currentTick    = (new Date()).getTime();
         this._frameSpacing = currentTick - this._lastTick;
