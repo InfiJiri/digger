@@ -70,8 +70,6 @@ var Core = function(canvas, frameTimer, map) {
 				digger.vy = 0;
 				break;
 		}
-
-		debug(self.map._map);
 	};
 
 	Debug.setFrameTimer(frameTimer);
@@ -131,9 +129,36 @@ Core.prototype = {
 			digger.x = Math.min(Math.max(0, digger.x + digger.speed), this._canvas.width - digger.width);
 		}
 
+		this.detectcollision();
+
 		this.map.update();
-		
+
 		this._frametimer.tick();
+	},
+	detectcollision: function() {
+		// Not super-efficient, but that can be fixed when shit starts hitting the fan
+		var entity2 = this.getDigger();
+		for( var i=0; i<this.map.entities.length; i++ ) {
+			var entity1 = this.map.entities[i];
+		//	for( var j=0; j<this.map.entities; j++ ) {
+		//		if (j==i) { // Don't detect collision with self
+		//			continue;
+		//		}
+
+		//		var entity2 = this.map.entities[j];
+						
+				if (
+					(entity1.x >= entity2.x || (entity1.x+entity1.width) >= entity2.x) &&
+					(entity1.x <= (entity2.x + entity2.width) || entity1.x <= (entity2.x + entity2.width) ) &&
+					(entity1.y >= entity2.y || (entity1.y+entity1.height) >= entity2.y) &&
+					(entity1.y <= (entity2.y + entity2.height) || entity1.y <= (entity2.y + entity2.height)) ) {
+
+					entity2.collide(entity1);					
+				}
+			//}
+		}
+
+		
 	},
 	draw: function(interpolation) {
 		this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);

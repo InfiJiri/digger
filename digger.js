@@ -37,6 +37,13 @@ Digger.prototype = {
 	move: function(direction) {
 		
 	},
+	collide: function(entity) {
+		if (entity.type=="emerald") {
+			entity.dispose();
+
+			
+		}
+	},
 	animate: function(context, interpolation) {
 		this._timer.tick();
 		var walk = this._animations["walk"];

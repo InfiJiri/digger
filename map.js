@@ -26,7 +26,7 @@ var Map = function(canvas, data) {
 	
 	// TODO load map
 	// TEST map
-	start = [
+	data = [
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1,
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1,
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1,
@@ -37,8 +37,8 @@ var Map = function(canvas, data) {
 		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1 ];
 
 	// Store original map
-	this._start = start;
-	this._map   = start;
+	this._start = data;
+	this._map   = data;
 
 	this.reset();
 };
@@ -68,11 +68,11 @@ Map.prototype = {
 	},
 	reset: function() {	
 		this._context.drawImage(this._images["bg"], 0, 0);
-		for( var y=0; y<start.length/this._numcols; y++ ) {
+		for( var y=0; y<this._start.length/this._numcols; y++ ) {
 			var offset = y * this._numcols;
 			var o      = null; // Object to be placed on map
 			for( var x=0; x<this._numcols; x++ ) {
-				var value = start[offset + x];
+				var value = this._start[offset + x];
 				switch( value ) {
 					case E: // Emerald
 						var o = new Emerald();
@@ -80,7 +80,6 @@ Map.prototype = {
 						// Place object on map.
 						o.x = x * this._tileWidth + (0.5 * (this._tileWidth - o.width));
 						o.y = y * this._tileHeight + (0.5 * (this._tileHeight - o.height));;
-						/*o.y = y * this._tileHeight + (this._tileHeight * 0.5);*/
 
 						this.entities.push(o);
 						break;
@@ -112,10 +111,10 @@ Map.prototype = {
 	draw: function() {
 		debug("Map.draw");
 
-		for( var y=0; y<start.length/this._numcols; y++ ) {
+		for( var y=0; y<this._start.length/this._numcols; y++ ) {
 			var offset = y*this._numcols;
 			for( var x=0; x<this._numcols; x++ ) {
-				var value = start[offset + x];
+				var value = this._start[offset + x];
 
 				if (value!==0) {
 					continue; // Nothing to do
