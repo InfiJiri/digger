@@ -19,7 +19,10 @@ var Core = function(canvas, frameTimer, map) {
 				self.togglePause();
 				break;
 			case 37: // LEFT
-				digger.vx = -digger.speed;
+				// digger.moveLeft
+				self.map.moveEntity(digger, "left");
+				//digger.vx = -digger.speed;
+
 				/*var normalizedPos = self.map.getNormalizedEntityPosition(digger);
 				debug(normalizedPos.x);
 				var x  = digger.x;
@@ -41,33 +44,33 @@ var Core = function(canvas, frameTimer, map) {
 
 				break;
 			case 38: // UP
-//			http://stackoverflow.com/questions/4871669/collision-detection-in-javascript-game
-				digger.vy = -digger.speed;
+				self.map.moveEntity(digger, "up");
+				//digger.vy = -digger.speed;
 
 				break;
 			case 39: // RIGHT
-				//var normalizedPos = self.map.getNormalizedEntityPosition(digger);
-				digger.vx = digger.speed;
+				self.map.moveEntity(digger, "right");
 
 				break;
 			case 40: // DOWN
-				digger.vy = digger.speed;
+				self.map.moveEntity(digger, "down");
+				// digger.vy = digger.speed;
 
 				break;
 		}
 	};
 
 	document.onkeyup = function(e) {
-		var digger = self.getDigger();
+		//var digger = self.getDigger();
 		switch( e.keyCode ) {
 			case 37: // LEFT
 			case 39: // RIGHT
-				digger.vx = 0;
+				//digger.vx = 0;
 				
 				break;
 			case 38: // UP
 			case 40: // DOWN
-				digger.vy = 0;
+				//digger.vy = 0;
 				break;
 		}
 	};
@@ -114,19 +117,21 @@ Core.prototype = {
 	},
 	update: function() {
 		//debug("Core.update");
-
-		// FIXME proper collision detection
 		var digger = this.getDigger();
-		if (this.map.isEntityInRow(digger) && digger.vx) {
-			digger.x = Math.min(Math.max(0, digger.x + digger.vx), this._canvas.width - digger.width);
-		} else if (digger.vx!=0 && digger.vy==0) { // Digger wants to move horizontaly, but is not in a row -> move to nearest row
-			digger.y = Math.min(Math.max(0, digger.y + digger.speed), this._canvas.height - digger.height);
+		if (digger.vx) {
+			digger.x += digger.vx;
+		} else if (digger.vy) {
+			digger.y += digger.vy;
+		} else {
+			return;
 		}
 
-		if (this.map.isEntityInColumn(digger)) {
-			digger.y = Math.min(Math.max(0, digger.y + digger.vy), this._canvas.height - digger.height);
-		} else if (digger.vy!=0 && digger.vx==0) { // Digger wants to move vertically, but is not in a column -> move to nearest column
-			digger.x = Math.min(Math.max(0, digger.x + digger.speed), this._canvas.width - digger.width);
+		var normalizedPosition = this.map.getNormalizedEntityPosition(digger);
+		if (normalizedPosition.x ==	digger.target.x &&
+			normalizedPosition.y == digger.target.y) {
+			digger.target = null;
+			digger.vx = 0;
+			digger.vy = 0;
 		}
 
 		this.detectcollision();

@@ -3,19 +3,48 @@ var Digger = function() {
 
 	var sprites = new SpriteSheet({
 		width: 35,
-		height: 33,
-		sprites: [
-			{ name: "walk1", x: 0, y: 1 },
-			{ name: "walk2", x: 0, y: 1 },
-			{ name: "walk3", x: 0, y: 1 },
-		]
+		height: 35,
+		sprites: {
+			"moveright1": { x: 0, y: 0 },
+			"moveright2": { x: 1, y: 0 },
+			"moveright3": { x: 2, y: 0 },
+			"moveleft1": { x: 0, y: 1 },
+			"moveleft2": { x: 1, y: 1 },
+			"moveleft3": { x: 2, y: 1 },
+			"moveup1": { x: 0, y: 2 },
+			"moveup2": { x: 1, y: 2 },
+			"moveup3": { x: 2, y: 2 },			
+			"movedown1": { x: 0, y: 3 },
+			"movedown2": { x: 1, y: 3 },
+			"movedown3": { x: 2, y: 3 },
+		}
 	});
 
 	this._animations = {
-		"walk": new Animation([
-			{ sprite: "walk1", time: 0.1 },
-			{ sprite: "walk2", time: 0.1 },
-			{ sprite: "walk3", time: 0.1 },
+		"moveright": new Animation([
+			{ sprite: "moveright1", time: 0.1 },
+			{ sprite: "moveright2", time: 0.1 },
+			{ sprite: "moveright3", time: 0.1 },
+		], sprites),
+		"movedown": new Animation([
+			{ sprite: "movedown1", time: 0.1 },
+			{ sprite: "movedown2", time: 0.1 },
+			{ sprite: "movedown3", time: 0.1 },
+		], sprites),
+		"moveleft": new Animation([
+			{ sprite: "moveleft1", time: 0.1 },
+			{ sprite: "moveleft2", time: 0.1 },
+			{ sprite: "moveleft3", time: 0.1 },
+		], sprites),
+		"moveup": new Animation([
+			{ sprite: "moveup1", time: 0.1 },
+			{ sprite: "moveup2", time: 0.1 },
+			{ sprite: "moveup3", time: 0.1 },
+		], sprites),		
+		"stand": new Animation([
+			{ sprite: "moveright1", time: 0.1 },
+			{ sprite: "moveright2", time: 0.1 },
+			{ sprite: "moveright3", time: 0.1 },
 		], sprites)
 	};
 
@@ -27,32 +56,30 @@ Digger.prototype = {
 	//_image: null,
 	_timer: new FrameTimer(),
 	_animations: {},
+    action: "stand",
 	vx: 0,
 	vy: 0,
 	x: 0,
 	y: 0,
-	speed:  4,
+	speed:  3,
 	height: 33,
 	width:  35,
-	move: function(direction) {
-		
-	},
 	collide: function(entity) {
 		if (entity.type=="emerald") {
-			entity.dispose();
-
-			
+			entity.dispose();		
 		}
 	},
 	animate: function(context, interpolation) {
 		this._timer.tick();
-		var walk = this._animations["walk"];
-		walk.animate(this._timer.getSeconds());
-		var frame = walk.getSprite();
+
+		var animation = this._animations[this.action];
+		animation.animate(this._timer.getSeconds());
+
+		var frame = animation.getSprite();
 
 		context.drawImage(this._image,
 			frame.x,
-			0, // FIXME FRAME Y
+			frame.y, // FIXME FRAME Y
 			this.width,
 			this.height,
 			this.x + this.vx * interpolation,

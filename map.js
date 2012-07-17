@@ -66,6 +66,63 @@ Map.prototype = {
 			y: Math.ceil(entity.y / this._tileHeight) 
 		}
 	},
+	moveEntity: function(entity, direction) {
+		entity.action = "stand";
+
+		if (	
+			entity.vx != 0 && direction!="left" && direction !="right" &&
+			entity.vy != 0 && direction!="up" && direction != "down" ) {
+			return;
+		}
+
+		var normalizedPosition = this.getNormalizedEntityPosition(entity);
+		switch( direction ) {
+			case "up":
+				if (normalizedPosition.y == 0) { // Top Border
+					entity.vy = 0;
+					return;
+				}
+
+				entity.action = "moveup";  // Rendering purposes only
+				entity.target = normalizedPosition;
+				entity.target.y--;
+				entity.vy     = -entity.speed;
+				break;
+			case "left":
+				if (normalizedPosition.x == 0) { // Left Border
+					entity.vx = 0;
+					return;
+				}
+
+				entity.action = "moveleft";  // Rendering purposes only
+				entity.target    = normalizedPosition;
+				entity.target.x--;
+				entity.vx = -entity.speed;
+				break;
+			case "right":
+				if (normalizedPosition.x == this._numcols) { // Right Border
+					entity.vx = 0;
+					return;
+				}
+
+				entity.action = "moveright";  // Rendering purposes only
+				entity.target    = normalizedPosition;
+				entity.target.x++;
+				entity.vx     = entity.speed;			
+				break;
+			case "down":
+				if (normalizedPosition.y == this._map.length / this._numcols ) { // Bottom Border
+					entity.vy = 0;
+					return;
+				}
+
+				entity.action = "movedown"; // Rendering purposes only
+				entity.target  = normalizedPosition;
+				entity.target.y++;
+				entity.vy     = entity.speed;
+				break;
+		}
+	},
 	reset: function() {	
 		this._context.drawImage(this._images["bg"], 0, 0);
 		for( var y=0; y<this._start.length/this._numcols; y++ ) {
