@@ -8,11 +8,12 @@ var Emerald = function() {
 Emerald.prototype = {
 	_image: null,
 
-	v: 0,
 	x: 0,
 	y: 0,
+	width: 23,
+	height: 18,
 
-	draw: function(context, interpolate) {
-		context.drawImage(this._image, this.x, this.y + this.v);
+	draw: function(context) {
+		context.drawImage(this._image, this.x, this.y);
 	}
 };

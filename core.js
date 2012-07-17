@@ -6,43 +6,73 @@ var Core = function(canvas, frameTimer, map) {
 	this._frametimer = frameTimer;
 	this.map         = map;
 
-	var digger = new Digger();
-
 	// FIXME
 	// Hmpf the handling of these key events should be
 	// in the Digger class, but it doesn't work (probably
 	// some reference / clone issue)
 	var self = this;
 	document.onkeydown = function(e) {
+		var digger = self.getDigger();
+
 		switch( e.keyCode ) {
 			case 32: // SPACE
 				self.togglePause();
 				break;
 			case 37: // LEFT
-				digger.vx = -2;
-				digger.vy = 0;
+				digger.vx = -digger.speed;
+				/*var normalizedPos = self.map.getNormalizedEntityPosition(digger);
+				debug(normalizedPos.x);
+				var x  = digger.x;
+				var vx = digger.vx;
+				var vy = digger.vy;
+				
+				digger.y += vy;
+				digger.vx = -digger.speed;
+
+				var normalizedPos2 = self.map.getNormalizedEntityPosition(digger);
+				
+				if (normalizedPos.y!=normalizedPos2.y) {
+					digger.y  = y;
+					digger.vy = 0;
+				} else {
+					digger.vx = vx;
+					digger.vy = vy;
+				}*/
+
 				break;
 			case 38: // UP
-				digger.vx = 0;
-				digger.vy = -2;
+//			http://stackoverflow.com/questions/4871669/collision-detection-in-javascript-game
+				digger.vy = -digger.speed;
+
 				break;
 			case 39: // RIGHT
-				digger.vx = 2;
-				digger.vy = 0;
+				//var normalizedPos = self.map.getNormalizedEntityPosition(digger);
+				digger.vx = digger.speed;
+
 				break;
 			case 40: // DOWN
-				digger.vx = 0;
-				digger.vy = 2;
+				digger.vy = digger.speed;
+
 				break;
 		}
 	};
 
 	document.onkeyup = function(e) {
-		digger.vx = 2;
-		digger.vy = 0;
-	};
+		var digger = self.getDigger();
+		switch( e.keyCode ) {
+			case 37: // LEFT
+			case 39: // RIGHT
+				digger.vx = 0;
+				
+				break;
+			case 38: // UP
+			case 40: // DOWN
+				digger.vy = 0;
+				break;
+		}
 
-	this.digger = digger;
+		debug(self.map._map);
+	};
 
 	Debug.setFrameTimer(frameTimer);
 }
@@ -56,11 +86,13 @@ Core.prototype = {
 	ispaused:      false,
 	fps:           50,
 	map:           null,
-	digger:        null, // Player
+	getDigger: function() { // Player
+		return this.map.digger;
+	},
 	togglePause:   function() {
 		debug("Core.togglePause(pause:" + (this._intervalId===false ? "off" : "on") + ")");
 
-		self = this;
+		var self = this;
 		if (this._intervalId===false) {
 			this._nextGameTick = (new Date).getTime(); // Interpolation reset
 			this._intervalId   = setInterval( function() { self.step(); } , 0);
@@ -84,13 +116,22 @@ Core.prototype = {
 	},
 	update: function() {
 		//debug("Core.update");
-		// FIXME proper collision detection
-		this.digger.x = Math.min(Math.max(0, this.digger.x + this.digger.vx), this._canvas.width - this.digger.width);
-		this.digger.y = Math.min(Math.max(0, this.digger.y + this.digger.vy), this._canvas.height - this.digger.height);
 
-		// FIXME proper handling of Digger movement
-		this.map.diggerX = this.digger.x;
-		this.map.diggerY = this.digger.y;
+		// FIXME proper collision detection
+		var digger = this.getDigger();
+		if (this.map.isEntityInRow(digger) && digger.vx) {
+			digger.x = Math.min(Math.max(0, digger.x + digger.vx), this._canvas.width - digger.width);
+		} else if (digger.vx!=0 && digger.vy==0) { // Digger wants to move horizontaly, but is not in a row -> move to nearest row
+			digger.y = Math.min(Math.max(0, digger.y + digger.speed), this._canvas.height - digger.height);
+		}
+
+		if (this.map.isEntityInColumn(digger)) {
+			digger.y = Math.min(Math.max(0, digger.y + digger.vy), this._canvas.height - digger.height);
+		} else if (digger.vy!=0 && digger.vx==0) { // Digger wants to move vertically, but is not in a column -> move to nearest column
+			digger.x = Math.min(Math.max(0, digger.x + digger.speed), this._canvas.width - digger.width);
+		}
+
+		this.map.update();
 		
 		this._frametimer.tick();
 	},
@@ -103,7 +144,7 @@ Core.prototype = {
 			entity.draw(this._context, interpolation);
 		}
 
-		this.digger.draw(this._context, interpolation);
+		this.getDigger().draw(this._context, interpolation);
 
 		Debug.updateFps();
 	},

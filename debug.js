@@ -2,7 +2,7 @@ var Debug = {
 	_frametimer: null,
 	_fpsTarget: null,
 	enabled: false,
-	writeln: function(o) {
+	writeln: function(o) {	
 		if (this.enabled) {
 			console.log(o);
 		}
