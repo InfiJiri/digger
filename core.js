@@ -122,6 +122,7 @@ Core.prototype = {
 	update: function() {
 		//debug("Core.update");
 
+		// Move to "Move entity"
 		var digger = this.getDigger();
 		if ( digger.vx ) {
 			if ( this.map.isEntityInRow(digger) ) {

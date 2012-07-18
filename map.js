@@ -23,15 +23,15 @@ var Map = function(canvas, data) {
 	this._images["bg"] = bg;
 	this._images["th"] = tunnelHorizontal;
 	this._images["tv"] = tunnelVertical;
-	
+
 	// TODO load map
 	// TEST map
 	data = [
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	G,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	G,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
@@ -164,28 +164,32 @@ Map.prototype = {
 			var o      = null; // Object to be placed on map
 			for( var x=0; x<this._numcols; x++ ) {
 				var value = this._start[offset + x];
-				switch( value ) {
+				switch( value ) { // FIXME Code duplication
 					case E: // Emerald
-						var o = new Emerald();
-
-						// Place object on map.
-						o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
-						o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);
-
-						this.entities.push(o);
+						o = new Emerald();
+						break;
+					case G: // Gold
+						o = new Gold();					
 						break;
 					case D: // Digger
 						var o = new Digger();
-
+						this.digger = o;
 						// Place object on map.
 						o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
 						o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);
 
-						this.digger = o;
+						
 						//this.entities.push(this.digger); // reference to object in entities array
 						//this._diggerEntityIndex = length - 1;*/
 					default:
 						continue; // Nothing to do
+				}
+
+				// Place object on map.
+				o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
+				o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);	
+				if (value!=D) {
+					this.entities.push(o);
 				}
 			}
 		}
@@ -206,6 +210,7 @@ Map.prototype = {
 
 		var normalizedPosition = this.getNormalizedEntityPosition(this.digger);
 		this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = 0; // Update tunnels in map
+		//this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = D; // Update tunnels in map
 	},
 	draw: function() {
 		debug("Map.draw");

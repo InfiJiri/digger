@@ -66,6 +66,13 @@ Digger.prototype = {
 	collide: function(entity) {
 		if (entity.type=="emerald") {
 			entity.dispose();
+		} else if (entity.type=="gold") {
+			if (entity.state == "gold") {
+				entity.dispose();
+			} else if (entity.state == "bag") {
+				entity.state = "move";
+				// FIMXE Implement
+			}
 		}
 	},
 	animate: function(context, interpolation) {
@@ -78,7 +85,7 @@ Digger.prototype = {
 
 		context.drawImage(this._image,
 			frame.x,
-			frame.y, // FIXME FRAME Y
+			frame.y,
 			this.width,
 			this.height,
 			this.x + this.vx * interpolation,
