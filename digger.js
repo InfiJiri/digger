@@ -53,7 +53,6 @@ var Digger = function() {
 };
 
 Digger.prototype = {
-	//_image: null,
 	_timer: new FrameTimer(),
 	_animations: {},
     action: "stand",
@@ -61,14 +60,12 @@ Digger.prototype = {
 	vy: 0,
 	x: 0,
 	y: 0,
-	speed:  3,
+	speed:  2,
 	height: 34,
 	width:  34,
-	/*height: 40,
-	width:  40,	*/
 	collide: function(entity) {
 		if (entity.type=="emerald") {
-			entity.dispose();		
+			entity.dispose();
 		}
 	},
 	animate: function(context, interpolation) {

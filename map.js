@@ -27,14 +27,15 @@ var Map = function(canvas, data) {
 	// TODO load map
 	// TEST map
 	data = [
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	0,	1,	0,	0,	0,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	0,	0,	0,	D,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1,	1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1 ];
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1 ];
 
 	// Store original map
 	this._start = data;
@@ -46,9 +47,9 @@ var Map = function(canvas, data) {
 Map.prototype = {
 	_canvas:  null,
 	_context: null,
-	_numcols: 21,
-	_tileWidth:  40,
-	_tileHeight: 40,
+	_numcols: 24,
+	_tileWidth:  34,
+	_tileHeight: 34,
 	_start:   [],
 	_map:     [],
 	_images:  {},
@@ -58,28 +59,41 @@ Map.prototype = {
 	},
 	entities: [],
 	isEntityInRow: function(entity) {
-		return entity.y % this._tileHeight == 0;
+		return (entity.y - this.getEntityOffsetHeight(entity)) % this._tileHeight == 0;
 	},
 	isEntityInColumn: function(entity) {
-		return entity.x % this._tileWidth == 0;
+		return (entity.x - this.getEntityOffsetWidth(entity)) % this._tileWidth == 0;
 	},
-	getNormalizedEntityPosition: function(entity){
-		//this.digger.x - ((this._tileWidth - this.digger.width) * 0.5) + (this._tileWidth * 0.5)	
-		var x = entity.x - ((this._tileWidth - entity.width) * 0.5);
-		var y = entity.y - ((this._tileHeight - entity.height) * 0.5);
-		
-		//var x = entity.x;
-		//var y = entity.y;
-		
+	isEntityCentered: function( entity ) {
+		//return this.isEntityInRow(entity) && this.isEntityInColumn(entity);
+	},
+	getEntityOffsetWidth: function(entity) {
+		return ((this._tileWidth - entity.width) * 0.5);
+	},
+	getEntityOffsetHeight: function(entity) {
+		return ((this._tileHeight - entity.height) * 0.5);
+	},	
+	getNormalizedPosition: function(x, y) {
 		return { 
 			x: Math.ceil(x / this._tileWidth), 
 			y: Math.ceil(y / this._tileHeight) 
-		}
+		}	
+	},
+	getNormalizedEntityPosition: function(entity){
+		var x = entity.x - this.getEntityOffsetWidth(entity);
+		var y = entity.y - this.getEntityOffsetHeight(entity);
+
+		return this.getNormalizedPosition(x , y);
+	},
+	centerEntity: function(entity) {
+		var normalizedPosition = this.getNormalizedEntityPosition(entity);
+		entity.x = normalizedPosition.x * this._tileWidth + this.getEntityOffsetWidth(entity);
+		entity.y = normalizedPosition.y * this._tileWidth + this.getEntityOffsetHeight(entity);
 	},
 	moveEntity: function(entity, direction) {
 		entity.action = "stand";
 
-		if (	
+		/*if (	
 			(entity.vx != 0 && direction!="left" && direction !="right") ||
 			(entity.vy != 0 && direction!="up" && direction != "down" )) {
 			return;
@@ -95,6 +109,8 @@ Map.prototype = {
 
 				entity.action = "moveup";  // Rendering purposes only
 				entity.target = normalizedPosition;
+				// debug(normalizedPosition);
+				// sdassdfafsda
 				entity.target.y--;
 				entity.vy     = -entity.speed;
 				break;
@@ -115,9 +131,15 @@ Map.prototype = {
 					return;
 				}
 
+				//var x2 = ( entity.x + entity.width );
+				//var y2 = ( entity.x + entity.width );
+				//this.getNormalizedPosition(x2, y2) != 
+				debug(normalizedPosition.x);
 				entity.action = "moveright";  // Rendering purposes only
 				entity.target = normalizedPosition;
 				entity.target.x++;
+				//debug(entity.target.x);
+				//sdafafsfs				
 				entity.vx     = entity.speed;
 				break;
 			case "down":
@@ -131,7 +153,9 @@ Map.prototype = {
 				entity.target.y++;
 				entity.vy     = entity.speed;
 				break;
-		}
+		}*/
+
+		
 	},
 	reset: function() {	
 		this._context.drawImage(this._images["bg"], 0, 0);
@@ -145,8 +169,8 @@ Map.prototype = {
 						var o = new Emerald();
 
 						// Place object on map.
-						o.x = x * this._tileWidth + (0.5 * (this._tileWidth - o.width));
-						o.y = y * this._tileHeight + (0.5 * (this._tileHeight - o.height));;
+						o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
+						o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);
 
 						this.entities.push(o);
 						break;
@@ -154,8 +178,8 @@ Map.prototype = {
 						var o = new Digger();
 
 						// Place object on map.
-						o.x = x * this._tileWidth + (0.5 * (this._tileWidth - o.width));
-						o.y = y * this._tileHeight + (0.5 * (this._tileHeight - o.height));;
+						o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
+						o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);
 
 						this.digger = o;
 						//this.entities.push(this.digger); // reference to object in entities array
@@ -170,10 +194,12 @@ Map.prototype = {
 	},
 	update: function() {
 		// FIXME drawing and updating must be separate processes
+		var normalizedPosition = this.getNormalizedEntityPosition(this.digger);
+		
         this._context.beginPath();
         this._context.arc(
-			this.digger.x - ((this._tileWidth - this.digger.width) * 0.5) + (this._tileWidth * 0.5),
-			this.digger.y - ((this._tileWidth - this.digger.width) * 0.5) + (this._tileWidth * 0.5),
+			this.digger.x - this.getEntityOffsetWidth(this.digger) + (this._tileWidth * 0.5),
+			this.digger.y - this.getEntityOffsetHeight(this.digger) + (this._tileHeight * 0.5),
 			this._tileWidth * 0.5, 0, 2 * Math.PI, false);
         this._context.fillStyle = "#000000";
         this._context.fill();
