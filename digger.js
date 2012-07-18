@@ -90,8 +90,14 @@ Digger.prototype = {
 					//debug(entity.width * 0.5);
 				}
 				// FIMXE Implement
+			} else if (entity.state == "bagfall") {
+				//debug("KEIDOOD");
+				this.kill();
 			}
 		}
+	},
+	kill: function() {
+		alert("This kills the Digger");
 	},
 	update: function() {
 		cd = this._map.getCanvasDimensions();
