@@ -124,25 +124,10 @@ Core.prototype = {
 
 		// Move to "Move entity"
 		var digger = this.getDigger();
-		if ( digger.vx ) {
-			if ( this.map.isEntityInRow(digger) ) {
-				digger.action = (digger.vx>0) ? "moveright" : "moveleft";
-				digger.x = Math.min(Math.max(0, digger.x + digger.vx), this._canvas.width - digger.width);
-			} else if ( digger.vy==0 ) { // Digger wants to move horizontaly, but is not in a row -> move to nearest row
-				var speed = (digger.action=="movedown") ? digger.speed : -digger.speed;
-
-				digger.y = Math.min(Math.max(0, digger.y + speed), this._canvas.height - digger.height);
-			}
-		}
-
-		if ( digger.vy ) {
-			if (this.map.isEntityInColumn(digger)) {
-				digger.action = (digger.vy>0) ? "movedown" : "moveup";
-				digger.y = Math.min(Math.max(0, digger.y + digger.vy), this._canvas.height - digger.height);
-			} else if (digger.vx==0) { // Digger wants to move vertically, but is not in a column -> move to nearest column
-				var speed = (digger.action=="moveright") ? digger.speed : -digger.speed;
-
-				digger.x = Math.min(Math.max(0, digger.x + speed), this._canvas.width - digger.width);
+		for( var i=0; i<this.map.entities.length; i++ ) {
+			var entity = this.map.entities[i];
+			if (entity.update) {
+				entity.update();
 			}
 		}
 		

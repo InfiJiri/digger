@@ -1,12 +1,13 @@
-var Emerald = function() {
+var Emerald = function(map) {
 	debug("Emerald.init");
 
 	this._image = new Image();
 	this._image.src = "images/emerald.png";
+
+	this._map = map;
 };
 
 Emerald.prototype = {
-	_image: null,
 	type: "emerald",
 	isdisposed: false,
 	x: 0,

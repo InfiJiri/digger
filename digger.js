@@ -1,4 +1,4 @@
-var Digger = function() {
+var Digger = function(map) {
 	debug("Digger.init");
 
 	var sprites = new SpriteSheet({
@@ -51,6 +51,7 @@ var Digger = function() {
 	this._image = new Image();
 	this._image.src = "images/digger.png";
 	this._timer = new FrameTimer();
+	this._map = map;
 };
 
 Digger.prototype = {
@@ -64,7 +65,7 @@ Digger.prototype = {
 	speed:  2,
 	height: 34,
 	width:  34,
-	collide: function(entity, map) {
+	collide: function(entity) {
 		if (entity.type=="emerald") {
 			entity.dispose();
 		} else if (entity.type=="gold") {
@@ -80,14 +81,39 @@ Digger.prototype = {
 				if (this.y == entity.y) { // Pushing bag
 					//entity.move(digger.x<entity.x ? "right" : "left" );
 				} else if ( this.y >= entity.y && (this.x >= bagCenter && this.x <= maxX) ) { // Digging below bag
-					entity.state = "shake";
+					entity.initFall(map);
 				} else {
-					debug(this.x);
-					debug(entity.width * 0.5);
+					//debug(this.x);
+					//debug(entity.width * 0.5);
 				}
 				// FIMXE Implement
 			}
 		}
+	},
+	update: function() {
+		cd = this._map.getCanvasDimensions();
+
+		if ( this.vx ) {
+			if ( this._map.isEntityInRow(this) ) {
+				this.action = (this.vx>0) ? "moveright" : "moveleft";
+				this.x = Math.min(Math.max(0, this.x + this.vx), cd.width - this.width);
+			} else if ( this.vy==0 ) { // Digger wants to move horizontaly, but is not in a row -> move to nearest row
+				var speed = (this.action=="movedown") ? this.speed : -this.speed;
+
+				this.y = Math.min(Math.max(0, this.y + speed), cd.height - this.height);
+			}
+		}
+
+		if ( this.vy ) {
+			if (this._map.isEntityInColumn(this)) {
+				this.action = (this.vy>0) ? "movedown" : "moveup";
+				this.y = Math.min(Math.max(0, this.y + this.vy), cd.height - this.height);
+			} else if (this.vx==0) { // Digger wants to move vertically, but is not in a column -> move to nearest column
+				var speed = (this.action=="moveright") ? this.speed : -this.speed;
+
+				this.x = Math.min(Math.max(0, this.x + speed), cd.width - this.width);
+			}
+		}	
 	},
 	animate: function(context, interpolation) {
 		this._timer.tick();

@@ -54,9 +54,6 @@ Map.prototype = {
 	_map:     [],
 	_images:  {},
 	_diggerEntityIndex: null,
-	getDigger: function() {
-		return this.entities[this._diggerEntityIndex];
-	},
 	entities: [],
 	isEntityInRow: function(entity) {
 		return (entity.y - this.getEntityOffsetHeight(entity)) % this._tileHeight == 0;
@@ -66,6 +63,9 @@ Map.prototype = {
 	},
 	isEntityCentered: function( entity ) {
 		//return this.isEntityInRow(entity) && this.isEntityInColumn(entity);
+	},
+	getCanvasDimensions: function() {
+		return { "width": this._canvas.width, "height": this._canvas.height };
 	},
 	getEntityOffsetWidth: function(entity) {
 		return ((this._tileWidth - entity.width) * 0.5);
@@ -168,13 +168,13 @@ Map.prototype = {
 				var value = this._start[offset + x];
 				switch( value ) { // FIXME Code duplication
 					case E: // Emerald
-						o = new Emerald();
+						o = new Emerald(this);
 						break;
 					case G: // Gold
-						o = new Gold();
+						o = new Gold(this);
 						break;
 					case D: // Digger
-						var o = new Digger();
+						var o = new Digger(this);
 						this.digger = o; // Store reference to array-object
 						break;
 					default:
@@ -204,7 +204,6 @@ Map.prototype = {
 
 		var normalizedPosition = this.getNormalizedEntityPosition(this.digger);
 		this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = 0; // Update tunnels in map
-		//this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = D; // Update tunnels in map
 	},
 	draw: function() {
 		debug("Map.draw");

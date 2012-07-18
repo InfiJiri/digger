@@ -1,4 +1,4 @@
-var Gold = function() {
+var Gold = function(map) {
 	debug("Gold.init");
 
 	var sprites = new SpriteSheet({
@@ -38,11 +38,13 @@ var Gold = function() {
 	this._image = new Image();
 	this._image.src = "images/gold.png";
 	this._timer = new FrameTimer();
+	this._map = map;	
 };
 
 Gold.prototype = {
 	//_timer: 
 	_animations: {},
+	_fallDelay: 0.5,
 	state: "bag",	
 	x     : 0,
 	y     : 0,
@@ -51,6 +53,9 @@ Gold.prototype = {
 	vy    : 0,
 	speed : 0,
 	type: "gold",
+	initFall: function(map) {
+		this.state = "shake";
+	},
 	animate: function(context, interpolation) {
 		this._timer.tick();
 
