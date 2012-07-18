@@ -56,6 +56,7 @@ var Digger = function() {
 Digger.prototype = {
 	_animations: {},
     action: "stand",
+	type: "digger",
 	vx: 0,
 	vy: 0,
 	x: 0,

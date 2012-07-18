@@ -175,7 +175,7 @@ Map.prototype = {
 						break;
 					case D: // Digger
 						var o = new Digger();
-						this.digger = o;
+						this.digger = o; // Store reference to array-object
 						break;
 					default:
 						continue; // Nothing to do
@@ -184,9 +184,7 @@ Map.prototype = {
 				// Place object on map.
 				o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
 				o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);	
-				if (value!=D) {
-					this.entities.push(o);
-				}
+				this.entities.push(o);
 			}
 		}
 

@@ -154,15 +154,15 @@ Core.prototype = {
 	},
 	detectcollision: function() {
 		// Not super-efficient, but that can be fixed when shit starts hitting the fan
-		var entity2 = this.getDigger();
+		//var entity2 = this.getDigger();
 		for( var i=0; i<this.map.entities.length; i++ ) {
 			var entity1 = this.map.entities[i];
-		//	for( var j=0; j<this.map.entities; j++ ) {
-		//		if (j==i) { // Don't detect collision with self
-		//			continue;
-		//		}
+			for( var j=0; j<this.map.entities.length; j++ ) {
+				if (j==i) { // Don't detect collision with self
+					continue;
+				}
 
-		//		var entity2 = this.map.entities[j];
+				var entity2 = this.map.entities[j];
 						
 				if (
 					(entity1.x >= entity2.x || (entity1.x+entity1.width) >= entity2.x) &&
@@ -170,9 +170,11 @@ Core.prototype = {
 					(entity1.y >= entity2.y || (entity1.y+entity1.height) >= entity2.y) &&
 					(entity1.y <= (entity2.y + entity2.height) || entity1.y <= (entity2.y + entity2.height)) ) {
 
-					entity2.collide(entity1);					
+					if (entity2.collide) { // Entity has 'collide' function?
+						entity2.collide(entity1);
+					}
 				}
-			//}
+			}
 		}
 
 		
@@ -186,7 +188,7 @@ Core.prototype = {
 			entity.draw(this._context, interpolation);
 		}
 
-		this.getDigger().draw(this._context, interpolation);
+		//this.getDigger().draw(this._context, interpolation);
 
 		Debug.updateFps();
 	},
