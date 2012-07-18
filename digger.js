@@ -79,7 +79,10 @@ Digger.prototype = {
 				var maxX      = bagCenter + 1;
 
 				if (this.y == entity.y) { // Pushing bag
-					//entity.move(digger.x<entity.x ? "right" : "left" );
+					var np = this._map.getNormalizedEntityPosition(this);
+					var x  = this.x>entity.x ? this.x - 1 : this.x + 1;
+
+					entity.moveToField(x, entity.y);
 				} else if ( this.y >= entity.y && (this.x >= bagCenter && this.x <= maxX) ) { // Digging below bag
 					entity.initFall(map);
 				} else {

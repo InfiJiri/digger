@@ -122,6 +122,7 @@ Core.prototype = {
 	update: function() {
 		//debug("Core.update");
 
+		
 		// Move to "Move entity"
 		var digger = this.getDigger();
 		for( var i=0; i<this.map.entities.length; i++ ) {
@@ -131,9 +132,9 @@ Core.prototype = {
 			}
 		}
 		
-		this.detectcollision();
-
 		this.map.update();
+		
+		this.detectcollision();	
 
 		this._frametimer.tick();
 	},
