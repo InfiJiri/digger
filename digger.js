@@ -50,10 +50,10 @@ var Digger = function() {
 
 	this._image = new Image();
 	this._image.src = "images/digger.png";
+	this._timer = new FrameTimer();
 };
 
 Digger.prototype = {
-	_timer: new FrameTimer(),
 	_animations: {},
     action: "stand",
 	vx: 0,
@@ -70,7 +70,7 @@ Digger.prototype = {
 			if (entity.state == "gold") {
 				entity.dispose();
 			} else if (entity.state == "bag") {
-				entity.state = "move";
+				entity.state = "shake";
 				// FIMXE Implement
 			}
 		}

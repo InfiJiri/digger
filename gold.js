@@ -5,12 +5,12 @@ var Gold = function() {
 		width: 34,
 		height: 34,
 		sprites: {
-			"bag":       { x: 0, y: 0 },
-			"moveleft":  { x: 1, y: 0 },
-			"moveright": { x: 2, y: 0 },
-			"bagfall":   { x: 3, y: 0 },
-			"gold":      { x: 1, y: 1 },
-			"goldfall":  { x: 0, y: 1 }			
+			"bag":        { x: 0, y: 0 },
+			"shakeleft":  { x: 1, y: 0 },
+			"shakeright": { x: 2, y: 0 },
+			"bagfall":    { x: 3, y: 0 },
+			"gold":       { x: 1, y: 1 },
+			"goldfall":   { x: 0, y: 1 }			
 		}
 	});
 
@@ -18,11 +18,11 @@ var Gold = function() {
 		"bag": new Animation([
 			{ sprite: "bag", time: 0.1 }
 		], sprites),
-		"move": new Animation([
-			{ sprite: "moveleft", time: 0.4 },
-			//{ sprite: "bag", time: 0.4 },
-			{ sprite: "moveright", time: 0.4 },
-			//{ sprite: "bag", time: 0.4 },
+		"shake": new Animation([
+			{ sprite: "shakeleft", time: 0.3 },
+			//{ sprite: "bag", time: 0.2 },
+			{ sprite: "shakeright", time: 0.3 },
+			//{ sprite: "bag", time: 0.2 },
 		], sprites),
 		"bagfall": new Animation([
 			{ sprite: "bagfall", time: 0.1 },
@@ -37,10 +37,11 @@ var Gold = function() {
 
 	this._image = new Image();
 	this._image.src = "images/gold.png";
+	this._timer = new FrameTimer();
 };
 
 Gold.prototype = {
-	_timer: new FrameTimer(),
+	//_timer: 
 	_animations: {},
 	state: "bag",	
 	x     : 0,
@@ -56,6 +57,10 @@ Gold.prototype = {
 		var animation = this._animations[this.state];
 		animation.animate(this._timer.getSeconds());
 
+		//if (this.state=="shake") {
+		//	debug(this._timer.getSeconds());
+		//}
+
 		var frame = animation.getSprite();
 
 		context.drawImage(this._image,
@@ -64,7 +69,7 @@ Gold.prototype = {
 			this.width,
 			this.height,
 			this.x,
-			this.y, //this.y + this.vy * interpolation,
+			this.y + this.vy * interpolation,
 			this.width,
 			this.height);
 	},
