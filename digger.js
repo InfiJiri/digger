@@ -64,14 +64,27 @@ Digger.prototype = {
 	speed:  2,
 	height: 34,
 	width:  34,
-	collide: function(entity) {
+	collide: function(entity, map) {
 		if (entity.type=="emerald") {
 			entity.dispose();
 		} else if (entity.type=="gold") {
 			if (entity.state == "gold") {
 				entity.dispose();
 			} else if (entity.state == "bag") {
-				entity.state = "shake";
+				debug("bag");
+				// Due to Digger speed > 1, not all (pixel) positions in the map
+				// can be reached.
+				var bagCenter = (entity.x + (entity.width * 0.5));
+				var maxX      = bagCenter + 1;
+
+				if (this.y == entity.y) { // Pushing bag
+					//entity.move(digger.x<entity.x ? "right" : "left" );
+				} else if ( this.y >= entity.y && (this.x >= bagCenter && this.x <= maxX) ) { // Digging below bag
+					entity.state = "shake";
+				} else {
+					debug(this.x);
+					debug(entity.width * 0.5);
+				}
 				// FIMXE Implement
 			}
 		}

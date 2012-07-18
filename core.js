@@ -171,7 +171,7 @@ Core.prototype = {
 					(entity1.y <= (entity2.y + entity2.height) || entity1.y <= (entity2.y + entity2.height)) ) {
 
 					if (entity2.collide) { // Entity has 'collide' function?
-						entity2.collide(entity1);
+						entity2.collide(entity1, this.map);
 					}
 				}
 			}
