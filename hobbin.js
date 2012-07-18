@@ -1,16 +1,16 @@
-var Nobbin = function(map) {
-	debug("Nobbin.init");
+var Hobbin = function(map) {
+	debug("Hobbin.init");
 
 	this._image = new Image();
-	this._image.src = "images/nobbin.png";
+	this._image.src = "images/hobbin.png";
 	this._timer = new FrameTimer();
 	this._map = map;
 };
 
-Nobbin.prototype = {
+Hobbin.prototype = {
 	_animations: {},
     action: "stand",
-	type: "nobbin",
+	type: "hobbin",
 	vx: 0,
 	vy: 0,
 	x: 0,
@@ -20,7 +20,7 @@ Nobbin.prototype = {
 	width:  34,
 
 	kill: function() {
-		alert("This kills the Nobbin");
+		alert("This kills the Hobbin");
 	},
 	update: function() {
 
