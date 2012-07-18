@@ -52,7 +52,10 @@ Map.prototype = {
 	_start:   [],
 	_map:     [],
 	_images:  {},
-	digger:   null,
+	_diggerEntityIndex: null,
+	getDigger: function() {
+		return this.entities[this._diggerEntityIndex];
+	},
 	entities: [],
 	isEntityInRow: function(entity) {
 		return entity.y % this._tileHeight == 0;
@@ -61,9 +64,16 @@ Map.prototype = {
 		return entity.x % this._tileWidth == 0;
 	},
 	getNormalizedEntityPosition: function(entity){
+		//this.digger.x - ((this._tileWidth - this.digger.width) * 0.5) + (this._tileWidth * 0.5)	
+		var x = entity.x - ((this._tileWidth - entity.width) * 0.5);
+		var y = entity.y - ((this._tileHeight - entity.height) * 0.5);
+		
+		//var x = entity.x;
+		//var y = entity.y;
+		
 		return { 
-			x: Math.ceil(entity.x / this._tileWidth), 
-			y: Math.ceil(entity.y / this._tileHeight) 
+			x: Math.ceil(x / this._tileWidth), 
+			y: Math.ceil(y / this._tileHeight) 
 		}
 	},
 	moveEntity: function(entity, direction) {
@@ -95,9 +105,9 @@ Map.prototype = {
 				}
 
 				entity.action = "moveleft";  // Rendering purposes only
-				entity.target    = normalizedPosition;
+				entity.target = normalizedPosition;
 				entity.target.x--;
-				entity.vx = -entity.speed;
+				entity.vx     = -entity.speed;
 				break;
 			case "right":
 				if (normalizedPosition.x == this._numcols) { // Right Border
@@ -106,9 +116,9 @@ Map.prototype = {
 				}
 
 				entity.action = "moveright";  // Rendering purposes only
-				entity.target    = normalizedPosition;
+				entity.target = normalizedPosition;
 				entity.target.x++;
-				entity.vx     = entity.speed;			
+				entity.vx     = entity.speed;
 				break;
 			case "down":
 				if (normalizedPosition.y == this._map.length / this._numcols ) { // Bottom Border
@@ -117,7 +127,7 @@ Map.prototype = {
 				}
 
 				entity.action = "movedown"; // Rendering purposes only
-				entity.target  = normalizedPosition;
+				entity.target = normalizedPosition;
 				entity.target.y++;
 				entity.vy     = entity.speed;
 				break;
@@ -144,9 +154,12 @@ Map.prototype = {
 						var o = new Digger();
 
 						// Place object on map.
-						o.x = x * this._tileWidth;
-						o.y = y * this._tileHeight;
+						o.x = x * this._tileWidth + (0.5 * (this._tileWidth - o.width));
+						o.y = y * this._tileHeight + (0.5 * (this._tileHeight - o.height));;
+
 						this.digger = o;
+						//this.entities.push(this.digger); // reference to object in entities array
+						//this._diggerEntityIndex = length - 1;*/
 					default:
 						continue; // Nothing to do
 				}
@@ -158,7 +171,10 @@ Map.prototype = {
 	update: function() {
 		// FIXME drawing and updating must be separate processes
         this._context.beginPath();
-        this._context.arc(this.digger.x + this._tileWidth*0.5, this.digger.y + this._tileWidth*0.5, this._tileWidth * 0.5, 0, 2 * Math.PI, false);
+        this._context.arc(
+			this.digger.x - ((this._tileWidth - this.digger.width) * 0.5) + (this._tileWidth * 0.5),
+			this.digger.y - ((this._tileWidth - this.digger.width) * 0.5) + (this._tileWidth * 0.5),
+			this._tileWidth * 0.5, 0, 2 * Math.PI, false);
         this._context.fillStyle = "#000000";
         this._context.fill();
 

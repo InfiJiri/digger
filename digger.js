@@ -2,8 +2,8 @@ var Digger = function() {
 	debug("Digger.init");
 
 	var sprites = new SpriteSheet({
-		width: 35,
-		height: 35,
+		width: 34,
+		height: 34,
 		sprites: {
 			"moveright1": { x: 0, y: 0 },
 			"moveright2": { x: 1, y: 0 },
@@ -62,8 +62,10 @@ Digger.prototype = {
 	x: 0,
 	y: 0,
 	speed:  3,
-	height: 33,
-	width:  35,
+	height: 34,
+	width:  34,
+	/*height: 40,
+	width:  40,	*/
 	collide: function(entity) {
 		if (entity.type=="emerald") {
 			entity.dispose();		
