@@ -159,6 +159,8 @@ Map.prototype = {
 	},
 	reset: function() {	
 		this._context.drawImage(this._images["bg"], 0, 0);
+		this.entities = [];
+
 		for( var y=0; y<this._start.length/this._numcols; y++ ) {
 			var offset = y * this._numcols;
 			var o      = null; // Object to be placed on map
@@ -169,18 +171,12 @@ Map.prototype = {
 						o = new Emerald();
 						break;
 					case G: // Gold
-						o = new Gold();					
+						o = new Gold();
 						break;
 					case D: // Digger
 						var o = new Digger();
 						this.digger = o;
-						// Place object on map.
-						o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
-						o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);
-
-						
-						//this.entities.push(this.digger); // reference to object in entities array
-						//this._diggerEntityIndex = length - 1;*/
+						break;
 					default:
 						continue; // Nothing to do
 				}

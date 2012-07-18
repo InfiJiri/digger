@@ -20,9 +20,9 @@ var Gold = function() {
 		], sprites),
 		"move": new Animation([
 			{ sprite: "moveleft", time: 0.4 },
-			{ sprite: "bag", time: 0.4 },
+			//{ sprite: "bag", time: 0.4 },
 			{ sprite: "moveright", time: 0.4 },
-			{ sprite: "bag", time: 0.4 },
+			//{ sprite: "bag", time: 0.4 },
 		], sprites),
 		"bagfall": new Animation([
 			{ sprite: "bagfall", time: 0.1 },
@@ -34,7 +34,7 @@ var Gold = function() {
 			{ sprite: "gold", time: 0.1 }
 		], sprites)
 	};	
-	
+
 	this._image = new Image();
 	this._image.src = "images/gold.png";
 };
