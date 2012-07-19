@@ -72,16 +72,22 @@ Gold.prototype = {
 			this.vy += this.vspeed;
 		}
 
+		var tileHeight = this._map.getTileHeight();
+		var tileWidth  = this._map.getTileWidth();
 		debug( x + " " + y );
-		this.target = {x:x, y:y};
+		this.target = {x:tileWidth * x, y:tileHeight * y};
 	},
-	moveHorizontal: function(pusherEntity, targetX) {
+	moveHorizontal: function(pusherEntity, x) {
 		var np = this._map.getNormalizedEntityPosition(this);
+		if ( x<0 || x==this._map.getNumCols() ) { // Border reached.
+			return;
+		}
 
-		this.vx = (targetX < np.x) ? -pusherEntity.speed : pusherEntity.speed;
-		this.vx *= 2;
+		var tileHeight = this._map.getTileHeight();
+		var tileWidth  = this._map.getTileWidth();
 
-		this.target = {x:targetX, y:np.y};
+		this.vx     = pusherEntity.vx * 2; // Bump bag ahead.
+		this.target = {x:tileWidth * x, y:tileHeight * np.y};
 	},
 	fall: function() {
 		var np        = this._map.getNormalizedEntityPosition(this);
@@ -92,9 +98,9 @@ Gold.prototype = {
 			index += this._map._numcols;
 
 			this.moveToField( np.x, np.y + 1 );
-		} else if (this.y >= (this.target.y * this._map._tileHeight)) {
+		} else if (this.y >= this.target.y ) {
 			this.vx = this.vy = 0;
-			this.y = this.target.y * this._map._tileHeight;
+			this.y = this.target.y;
 
 			if (this.state == "bagfall") {
 				this.state = "goldfall";
@@ -127,10 +133,20 @@ Gold.prototype = {
 
 			if (this.state == "bagfall") {
 				this.fall(); // Falling of bag is a special move, and is handled by 'fall' function.	
-			} else if ( this.target.x == np.x && this.target.y == np.y ) {
-				this.vx = this.vy = 0;
-				this.target = null;
+			} else if (this.state=="bag") { // Moving horizontally
+				if ( (this.vx>0 && this.x >= this.target.x) ||
+					(this.vx<0 && this.x <= this.target.x) ) {
+					this.vx = this.vy = 0;
+					this.x = this.target.x;
+
+					this.target = null;
+				}
 			}
+
+			//if ( this.target.x == np.x && this.target.y == np.y ) {
+
+				//this.vx = this.vy = 0;
+				//this.target = null;
 
 			this.x += this.vx;
 			this.y += this.vy;

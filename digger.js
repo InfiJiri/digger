@@ -89,21 +89,33 @@ Digger.prototype = {
 			} else if (entity.state == "bag") {
 				// Due to Digger speed > 1, not all (pixel) positions in the map
 				// can be reached.
-				var bagCenter = (entity.x + (entity.width * 0.5));
-				var maxX      = bagCenter + 1;
+				var bagCenter = entity.x + (entity.width * 0.5);
+				var minX      = bagCenter - (0.25 * entity.width);
+				var maxX      = bagCenter + (0.25 * entity.width);
 
 				var npDigger = this.getNormalizedPosition();
 				var npEntity = this._map.getNormalizedEntityPosition(entity);
-				if (entity.y == this.y && (this.x >= bagCenter && this.x <= maxX)) { // Pushing bag
-					var x  = npDigger.x>npEntity.x ? npEntity.x - 1 : npEntity.x + 1;
 
-					//debug("X: " + x + " " + npDigger.x);
-					entity.moveHorizontal(this, x);
-				} else if ( this.y > entity.y && (this.x >= bagCenter && this.x <= maxX) ) { // Digging below bag
-					entity.initFall();
-				} else {
-					//debug(this.x);
-					//debug(entity.width * 0.5);
+				var x1 = this.x;
+				var x2 = this.x + this.width;
+				
+				if ( (x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX) ) {
+
+					if (npDigger.y == npEntity.y) { // Pushing bag
+						var x = npEntity.x;
+						if (this.x>bagCenter && this.vx<0) {
+							x = npEntity.x - 1;
+						} else if (this.x<bagCenter && this.vx>0) {
+							x = npEntity.x + 1
+						}
+						
+						entity.moveHorizontal(this, x);
+					} else if ( this.y > entity.y ) { // Digging below bag
+						entity.initFall();
+					} else {
+						//debug(this.x);
+						//debug(entity.width * 0.5);
+					}
 				}
 				// FIMXE Implement
 			} else if (entity.state == "bagfall") {
