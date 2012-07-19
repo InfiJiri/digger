@@ -1,9 +1,9 @@
-var MapRenderer = function(canvas, map) {
+var MapRenderer = function(canvas, map, offset) {
 	debug("MapRenderer.init");
 
 	this._canvas  = canvas;
 	this._context = canvas.getContext("2d");
-
+	
 	// Preload images
 	var bg               = new Image();
 	bg.src               = "images/bg.png";
@@ -12,19 +12,31 @@ var MapRenderer = function(canvas, map) {
 
 	this._map   = map;
 
-	this.reset();
+	if (offset) {
+		this._x = offset.x ? offset.x : 0;
+		this._y = offset.y ? offset.y : 0;
+	}
 	
+	this.reset();
 };
 
 MapRenderer.prototype = {
 	_canvas:  null,
 	_context: null,
 	_images: [],
+	getXOffset: function() {
+		//return this._map._x;
+		return 0;
+	},
+	getYOffset: function() {
+		//return this._map._y;
+		return 0;
+	},
 	getCanvasDimensions: function() {
 		return { "width": this._context.width, "height": this._context.height };
-	},	
+	},
 	reset: function() {	
-		this._context.drawImage(this._images["bg"], 0, 0);
+		this._context.drawImage(this._images["bg"], this.getXOffset(), this.getYOffset());
 
 		this.draw();
 	},
@@ -63,8 +75,11 @@ MapRenderer.prototype = {
 				var tileWidth  = this._map.getTileWidth();
 				var tileHeight = this._map.getTileHeight();
 
+				var tunnelX = this.getXOffset() + x * tileWidth + (0.5 * tileWidth);
+				var tunnelY = this.getYOffset() + y * tileWidth + (0.5 * tileWidth)
+				
 				this._context.beginPath();
-				this._context.arc(x * tileWidth + (0.5 * tileWidth), y * tileWidth + (0.5 * tileWidth), tileWidth * 0.5, 0, 2 * Math.PI, false);
+				this._context.arc(tunnelX, tunnelY, tileWidth * 0.5, 0, 2 * Math.PI, false);
 				this._context.fillStyle = "#000000";
 				this._context.fill();
 			}

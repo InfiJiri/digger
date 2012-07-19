@@ -62,19 +62,21 @@
 				}
 
 				debug("Document.onload");
+				var hud  = new Hud(mapCanvas, frameTimer, {width:0, height:30});
 				var map  = new Map();
 
-				var core = new Core(gameCanvas, mapCanvas, map, frameTimer);
+				var core = new Core(gameCanvas, mapCanvas, map, frameTimer, hud);
 				core.reset(); // Start game
-				
+
 				//var wobwob = document.getElementById("popcorn");
+				//var funeral = document.getElementById("funeral");
 				//setTimeout(function() { wobwob.parentNode.removeChild(wobwob); }, 5000);
 			};
 		</script>
 	</head>
-	<body>
-		<!--<iframe id="popcorn" class="song" swidth="0" height="0" src="http://www.youtube.com/v/oVO3r16tiek&autoplay=1" frameborder="0"></iframe>-->
+	<body>		
 		<div id="content">
+			<iframe id="song" width="0" height="0" src="" frameborder="0"></iframe>
 			<canvas id="map" width="840" height="305">NO CANVAS</canvas>
 			<canvas id="game" width="840" height="305">NO CANVAS</canvas>
 			<div id="debug">

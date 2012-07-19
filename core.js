@@ -1,13 +1,14 @@
-var Core = function(canvas, mapCanvas, map, frameTimer) {
+var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 	debug("Core.init");
 
 	this._canvas     = canvas;
 	this._context    = canvas.getContext("2d");
 	this._frametimer = frameTimer;
-	this._map        = map;
 
+	this._hud 		  = hud
+
+	this._map = map;
 	this._mapRenderer = new MapRenderer(mapCanvas, map);
-	this._hud = new Hud(mapCanvas, frameTimer);
 
 	// FIXME
 	// Hmpf the handling of these key events should be
@@ -64,9 +65,9 @@ Core.prototype = {
 	_frametimer:   null,
 	_nextGameTick: null,
 	_intervalId:   false,
-	ispaused:      false,
-	fps:           50,
 	_map:          null,
+	isover:        false,
+	fps:           50,
 	getDigger: function() { // Player
 		return this._map.getDigger();
 	},
@@ -82,6 +83,15 @@ Core.prototype = {
 			this._intervalId = false;
 		}
 	},
+	gameOver: function() {
+		this.playSong();
+		
+		this.togglePause();
+		//this.togglePause();
+		//alert("game over");
+
+		//this.reset();
+	},
 	reset: function() {
 		debug("Core.reset");
 
@@ -91,14 +101,21 @@ Core.prototype = {
 		}
 
 		this._map.reset();
+		this._hud.reset();
+
 		this._mapRenderer.draw();
-		
+
+		this.playSong();
 		// Undo pause
 		this.togglePause();
 	},
 	update: function() {
 		//debug("Core.update");
-
+		if (this.getDigger().action == "die") {
+			this.gameOver();
+			return;
+		}
+		
 		// Update all entities in the game
 		for( var i=0; i<this._map.entities.length; i++ ) {
 			var entity = this._map.entities[i];
@@ -143,6 +160,16 @@ Core.prototype = {
 			}
 		}
 	},
+	playSong: function() {
+		var popcorn = "http://www.youtube.com/v/oVO3r16tiek&autoplay=1";
+		var funeral = "http://www.youtube.com/v/5NKMk8IpcV8&autoplay=1";
+
+		// FIXME testing purposes
+		var url = (this.getDigger().action == "die") ? funeral : popcorn;
+
+		var song = document.getElementById("song");
+		song.src = url;
+	},
 	draw: function(interpolation) {
 		this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
@@ -155,6 +182,7 @@ Core.prototype = {
 		Debug.updateFps();
 	},
 	step: function() {
+		
 		//http://nokarma.org/2011/02/02/javascript-game-development-the-game-loop/index.html
 		var loops     = 0;
 		var skipTicks = 1000 / this.fps;

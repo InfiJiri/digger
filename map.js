@@ -24,7 +24,10 @@ var Map = function(data) {
 
 	// Store original map
 	this._start = data;
-	this._map   = data;
+	for( var i=0; i<data.length; i++ ) {
+		this._map.push(data[i]);
+	}
+//	this._map   = data;
 
 	this.reset();
 };
