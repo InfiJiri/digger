@@ -54,7 +54,7 @@ Gold.prototype = {
 	height: 34,	
 	vx    : 0,
 	vy    : 0,
-	speed : 3,
+	vspeed : 3,
 	type: "gold",
 	target: null,
 	initFall: function() {
@@ -69,13 +69,19 @@ Gold.prototype = {
 		if (y > np.y) {
 			this.state = "bagfall";
 
-			this.vy += this.speed;
-		} else {
-			this.vx == (x < np.x) ? this.speed : -this.speed;
+			this.vy += this.vspeed;
 		}
 
 		debug( x + " " + y );
-		this.target = {x:x, y:y};		
+		this.target = {x:x, y:y};
+	},
+	moveHorizontal: function(pusherEntity, targetX) {
+		var np = this._map.getNormalizedEntityPosition(this);
+
+		this.vx = (targetX < np.x) ? -pusherEntity.speed : pusherEntity.speed;
+		this.vx *= 2;
+
+		this.target = {x:targetX, y:np.y};
 	},
 	fall: function() {
 		var np        = this._map.getNormalizedEntityPosition(this);
@@ -120,7 +126,7 @@ Gold.prototype = {
 			var np = this._map.getNormalizedEntityPosition(this);
 
 			if (this.state == "bagfall") {
-				this.fall(); // Falling of bag is a special move, and is handled by 'fall' function.
+				this.fall(); // Falling of bag is a special move, and is handled by 'fall' function.	
 			} else if ( this.target.x == np.x && this.target.y == np.y ) {
 				this.vx = this.vy = 0;
 				this.target = null;
