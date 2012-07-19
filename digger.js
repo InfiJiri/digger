@@ -77,6 +77,9 @@ Digger.prototype = {
 	speed:  2,
 	height: 34,
 	width:  34,
+	getNormalizedPosition: function() {
+		return this._map.getNormalizedEntityPosition(this);
+	},
 	collide: function(entity) {
 		if (entity.type=="emerald") {
 			entity.dispose();
@@ -84,19 +87,20 @@ Digger.prototype = {
 			if (entity.state == "gold") {
 				entity.dispose();
 			} else if (entity.state == "bag") {
-				debug("bag");
 				// Due to Digger speed > 1, not all (pixel) positions in the map
 				// can be reached.
 				var bagCenter = (entity.x + (entity.width * 0.5));
 				var maxX      = bagCenter + 1;
 
-				if (this.y == entity.y) { // Pushing bag
-					var np = this._map.getNormalizedEntityPosition(this);
+				var npDigger = this.getNormalizedPosition();
+				var npEntity = this._map.getNormalizedEntityPosition(entity);
+				if (npDigger.y == npEntity.y && (this.x >= bagCenter && this.x <= maxX)) { // Pushing bag
+				
 					var x  = this.x>entity.x ? this.x - 1 : this.x + 1;
 
 					entity.moveToField(x, entity.y);
-				} else if ( this.y >= entity.y && (this.x >= bagCenter && this.x <= maxX) ) { // Digging below bag
-					entity.initFall(map);
+				} else if ( this.y > entity.y && (this.x >= bagCenter && this.x <= maxX) ) { // Digging below bag
+					entity.initFall();
 				} else {
 					//debug(this.x);
 					//debug(entity.width * 0.5);

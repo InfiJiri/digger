@@ -88,6 +88,7 @@ Core.prototype = {
 		}
 	},
 	gameOver: function() {
+		this.isover = true;
 		this.playSong();
 		
 		var self = this;
@@ -101,6 +102,7 @@ Core.prototype = {
 			this._intervalId = false;
 		}
 
+		this.isover = false;		
 		this._map.reset();
 		this._hud.reset();
 
@@ -113,7 +115,9 @@ Core.prototype = {
 	update: function() {
 		//debug("Core.update");
 		if (this.getDigger().action == "die") {
-			this.gameOver();
+			if (!this.isover) {
+				this.gameOver();
+			}
 			return;
 		}
 		
@@ -165,6 +169,7 @@ Core.prototype = {
 		if (!Debug.enableSound) {
 			return;
 		}
+
 		var popcorn = "http://www.youtube.com/v/oVO3r16tiek&autoplay=1";
 		var funeral = "http://www.youtube.com/v/5NKMk8IpcV8&autoplay=1";
 
