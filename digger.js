@@ -17,6 +17,11 @@ var Digger = function(map) {
 			"movedown1": { x: 0, y: 3 },
 			"movedown2": { x: 1, y: 3 },
 			"movedown3": { x: 2, y: 3 },
+			"die1": { x: 0, y: 4 },	// Dead Digger
+			"die2": { x: 1, y: 5 }, // RIP 25%
+			"die3": { x: 0, y: 5 }, // RIP 50%
+			"die4": { x: 2, y: 4 }, // RIP 75%
+			"die5": { x: 1, y: 4 }, // RIP full
 		}
 	});
 
@@ -45,7 +50,14 @@ var Digger = function(map) {
 			{ sprite: "moveright1", time: 0.1 },
 			{ sprite: "moveright2", time: 0.1 },
 			{ sprite: "moveright3", time: 0.1 },
-		], sprites)
+		], sprites),
+		"die": new Animation([
+			{ sprite: "die1", time: 1.0 },
+			{ sprite: "die2", time: 0.2 },
+			{ sprite: "die3", time: 0.2 },
+			{ sprite: "die4", time: 0.2 },
+			{ sprite: "die5", time: null },
+		], sprites),		
 	};
 
 	this._image = new Image();
@@ -97,7 +109,8 @@ Digger.prototype = {
 		}
 	},
 	kill: function() {
-		alert("This kills the Digger");
+		//alert("This kills the Digger");
+		this.action = "die";
 	},
 	update: function() {
 		cd = this._map.getCanvasDimensions();

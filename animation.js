@@ -18,6 +18,11 @@ Animation.prototype = {
     },
  
     animate: function(deltaTime) {
+		if (this._frameDuration==null) { // Animation ended
+			return;
+		}
+		
+
         //Reduce time passed from the duration to show a frame        
         this._frameDuration -= deltaTime;
  
