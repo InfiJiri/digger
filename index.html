@@ -40,6 +40,8 @@
 		<script type="text/javascript" src="emerald.js"></script>
 		<script type="text/javascript" src="gold.js"></script>
 		<script type="text/javascript" src="map.js"></script>
+		<script type="text/javascript" src="hud.js"></script>
+		<script type="text/javascript" src="maprenderer.js"></script>
 		<script type="text/javascript" src="core.js"></script>
 		<script type="text/javascript" src="debug.js"></script>
 		<script type="text/javascript">
@@ -60,9 +62,9 @@
 				}
 
 				debug("Document.onload");
-				var map  = new Map(mapCanvas);
+				var map  = new Map();
 
-				var core = new Core(gameCanvas, frameTimer, map);
+				var core = new Core(gameCanvas, mapCanvas, map, frameTimer);
 				core.reset(); // Start game
 				
 				//var wobwob = document.getElementById("popcorn");

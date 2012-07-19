@@ -82,7 +82,7 @@ Gold.prototype = {
 		var nextRow   = np.y + 1;
 		var index     = (nextRow * this._map._numcols) + np.x; // Row + col below bag
 
-		if( this._map._map[ index ] == 0 && index<this._map._map.length) { // Row below bag is empty?
+		if( this._map.getMapData()[ index ] == 0 && index<this._map.getMapData().length) { // Row below bag is empty?
 			index += this._map._numcols;
 
 			this.moveToField( np.x, np.y + 1 );

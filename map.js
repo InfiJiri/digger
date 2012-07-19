@@ -6,23 +6,8 @@ var G = 6;  // Gold
 var H = 7;  // Hobbin
 var N = 8;  // Nobbin
 
-var Map = function(canvas, data) {
+var Map = function(data) {
 	debug("Map.init");
-	this._canvas  = canvas;
-	this._context = canvas.getContext("2d");
-
-	// Preload images
-	var bg               = new Image();
-	var tunnelHorizontal = new Image();
-	var tunnelVertical   = new Image();
-
-	bg.src               = "images/bg.png";
-	tunnelHorizontal.src = "images/tunnel-horizontal.png";
-	tunnelVertical.src   = "images/tunnel-vertical.png";
-
-	this._images["bg"] = bg;
-	this._images["th"] = tunnelHorizontal;
-	this._images["tv"] = tunnelVertical;
 
 	// TODO load map
 	// TEST map
@@ -45,15 +30,13 @@ var Map = function(canvas, data) {
 };
 
 Map.prototype = {
-	_canvas:  null,
-	_context: null,
 	_numcols: 24,
 	_tileWidth:  34,
 	_tileHeight: 34,
 	_start:   [],
 	_map:     [],
 	_images:  {},
-	_diggerEntityIndex: null,
+	_digger: null,
 	entities: [],
 	isEntityInRow: function(entity) {
 		return (entity.y - this.getEntityOffsetHeight(entity)) % this._tileHeight == 0;
@@ -64,8 +47,26 @@ Map.prototype = {
 	isEntityCentered: function( entity ) {
 		//return this.isEntityInRow(entity) && this.isEntityInColumn(entity);
 	},
-	getCanvasDimensions: function() {
-		return { "width": this._canvas.width, "height": this._canvas.height };
+	getStartData: function() {	// Returns original map data
+		return this._start;
+	},
+	getMapData: function() {	// Returns current map data
+		return this._map;
+	},
+	getDigger: function() {	// Player
+		return this._digger;
+	},
+	getNumCols: function() {
+		return this._numcols;
+	},
+	getNumRows: function() {
+		return this._map.length / this._numcols;
+	},
+	getTileWidth: function() {
+		return this._tileWidth;
+	},
+	getTileHeight: function() {
+		return this._tileHeight;
 	},
 	getEntityOffsetWidth: function(entity) {
 		return ((this._tileWidth - entity.width) * 0.5);
@@ -90,75 +91,7 @@ Map.prototype = {
 		entity.x = normalizedPosition.x * this._tileWidth + this.getEntityOffsetWidth(entity);
 		entity.y = normalizedPosition.y * this._tileWidth + this.getEntityOffsetHeight(entity);
 	},
-	moveEntity: function(entity, direction) {
-		entity.action = "stand";
-
-		/*if (	
-			(entity.vx != 0 && direction!="left" && direction !="right") ||
-			(entity.vy != 0 && direction!="up" && direction != "down" )) {
-			return;
-		}
-
-		var normalizedPosition = this.getNormalizedEntityPosition(entity);
-		switch( direction ) {
-			case "up":
-				if (normalizedPosition.y == 0) { // Top Border
-					entity.vy = 0;
-					return;
-				}
-
-				entity.action = "moveup";  // Rendering purposes only
-				entity.target = normalizedPosition;
-				// debug(normalizedPosition);
-				// sdassdfafsda
-				entity.target.y--;
-				entity.vy     = -entity.speed;
-				break;
-			case "left":
-				if (normalizedPosition.x == 0) { // Left Border
-					entity.vx = 0;
-					return;
-				}
-
-				entity.action = "moveleft";  // Rendering purposes only
-				entity.target = normalizedPosition;
-				entity.target.x--;
-				entity.vx     = -entity.speed;
-				break;
-			case "right":
-				if (normalizedPosition.x == this._numcols) { // Right Border
-					entity.vx = 0;
-					return;
-				}
-
-				//var x2 = ( entity.x + entity.width );
-				//var y2 = ( entity.x + entity.width );
-				//this.getNormalizedPosition(x2, y2) != 
-				debug(normalizedPosition.x);
-				entity.action = "moveright";  // Rendering purposes only
-				entity.target = normalizedPosition;
-				entity.target.x++;
-				//debug(entity.target.x);
-				//sdafafsfs				
-				entity.vx     = entity.speed;
-				break;
-			case "down":
-				if (normalizedPosition.y == this._map.length / this._numcols ) { // Bottom Border
-					entity.vy = 0;
-					return;
-				}
-
-				entity.action = "movedown"; // Rendering purposes only
-				entity.target = normalizedPosition;
-				entity.target.y++;
-				entity.vy     = entity.speed;
-				break;
-		}*/
-
-		
-	},
 	reset: function() {	
-		this._context.drawImage(this._images["bg"], 0, 0);
 		this.entities = [];
 
 		for( var y=0; y<this._start.length/this._numcols; y++ ) {
@@ -175,7 +108,7 @@ Map.prototype = {
 						break;
 					case D: // Digger
 						var o = new Digger(this);
-						this.digger = o; // Store reference to array-object
+						this._digger = o; // Store reference to array-object
 						break;
 					default:
 						continue; // Nothing to do
@@ -187,42 +120,9 @@ Map.prototype = {
 				this.entities.push(o);
 			}
 		}
-
-		this.draw();
 	},
 	update: function() {
-		// FIXME drawing and updating must be separate processes
-		var normalizedPosition = this.getNormalizedEntityPosition(this.digger);
-		
-        this._context.beginPath();
-        this._context.arc(
-			this.digger.x - this.getEntityOffsetWidth(this.digger) + (this._tileWidth * 0.5),
-			this.digger.y - this.getEntityOffsetHeight(this.digger) + (this._tileHeight * 0.5),
-			this._tileWidth * 0.5, 0, 2 * Math.PI, false);
-        this._context.fillStyle = "#000000";
-        this._context.fill();
-
-		var normalizedPosition = this.getNormalizedEntityPosition(this.digger);
+		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
 		this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = 0; // Update tunnels in map
-	},
-	draw: function() {
-		debug("Map.draw");
-
-		for( var y=0; y<this._start.length/this._numcols; y++ ) {
-			var offset = y*this._numcols;
-			for( var x=0; x<this._numcols; x++ ) {
-				var value = this._start[offset + x];
-
-				if (value!==0) {
-					continue; // Nothing to do
-				}
-
-				//this._context.drawImage(this._images["th"], x*this._tileWidth, y*this._tileHeight);
-				this._context.beginPath();
-				this._context.arc(x * this._tileWidth + (0.5 * this._tileWidth), y * this._tileWidth + (0.5 * this._tileWidth), this._tileWidth * 0.5, 0, 2 * Math.PI, false);
-				this._context.fillStyle = "#000000";
-				this._context.fill();				
-			}
-		}
 	}
 };

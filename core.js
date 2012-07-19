@@ -1,10 +1,13 @@
-var Core = function(canvas, frameTimer, map) {
+var Core = function(canvas, mapCanvas, map, frameTimer) {
 	debug("Core.init");
 
 	this._canvas     = canvas;
 	this._context    = canvas.getContext("2d");
 	this._frametimer = frameTimer;
-	this.map         = map;
+	this._map        = map;
+
+	this._mapRenderer = new MapRenderer(mapCanvas, map);
+	this._hud = new Hud(mapCanvas, frameTimer);
 
 	// FIXME
 	// Hmpf the handling of these key events should be
@@ -63,9 +66,9 @@ Core.prototype = {
 	_intervalId:   false,
 	ispaused:      false,
 	fps:           50,
-	map:           null,
+	_map:          null,
 	getDigger: function() { // Player
-		return this.map.digger;
+		return this._map.getDigger();
 	},
 	togglePause:   function() {
 		debug("Core.togglePause(pause:" + (this._intervalId===false ? "off" : "on") + ")");
@@ -87,7 +90,8 @@ Core.prototype = {
 			this._intervalId = false;
 		}
 
-		this.map.reset();
+		this._map.reset();
+		this._mapRenderer.draw();
 		
 		// Undo pause
 		this.togglePause();
@@ -96,14 +100,15 @@ Core.prototype = {
 		//debug("Core.update");
 
 		// Update all entities in the game
-		for( var i=0; i<this.map.entities.length; i++ ) {
-			var entity = this.map.entities[i];
+		for( var i=0; i<this._map.entities.length; i++ ) {
+			var entity = this._map.entities[i];
 			if (entity.update) {
 				entity.update();
 			}
 		}
-		
-		this.map.update();
+
+		this._map.update();
+		this._mapRenderer.update();
 
 		this.detectcollision();	
 
@@ -113,14 +118,14 @@ Core.prototype = {
 		// Detect collisions between all entities in the game
 	
 		// Not super-efficient, but that can be fixed when shit starts hitting the fan
-		for( var i=0; i<this.map.entities.length; i++ ) {
-			var entity1 = this.map.entities[i];
+		for( var i=0; i<this._map.entities.length; i++ ) {
+			var entity1 = this._map.entities[i];
 			if (entity1.isdisposed) { // Entity is not part of the game anymore
 				continue;
 			}
 
-			for( var j=0; j<this.map.entities.length; j++ ) {
-				var entity2 = this.map.entities[j];
+			for( var j=0; j<this._map.entities.length; j++ ) {
+				var entity2 = this._map.entities[j];
 				if (j==i || entity1.isdisposed) { // Don't detect collision with self, and don't collide entities that aren't part of the game anymore
 					continue;
 				}
@@ -132,7 +137,7 @@ Core.prototype = {
 					(entity1.y <= (entity2.y + entity2.height) || entity1.y <= (entity2.y + entity2.height)) ) {
 
 					if (entity2.collide) { // Entity has 'collide' function?
-						entity2.collide(entity1, this.map);
+						entity2.collide(entity1, this._map);
 					}
 				}
 			}
@@ -141,12 +146,12 @@ Core.prototype = {
 	draw: function(interpolation) {
 		this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-		for( var i=0; i<this.map.entities.length; i++ ) {
-			var entity = this.map.entities[i];
+		for( var i=0; i<this._map.entities.length; i++ ) {
+			var entity = this._map.entities[i];
 
 			entity.draw(this._context, interpolation);
-		}
-
+		}		
+		
 		Debug.updateFps();
 	},
 	step: function() {

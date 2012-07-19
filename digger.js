@@ -113,7 +113,11 @@ Digger.prototype = {
 		this.action = "die";
 	},
 	update: function() {
-		cd = this._map.getCanvasDimensions();
+		//cd = this._map.getCanvasDimensions();
+		var cd = {
+			width: this._map.getNumCols() * this._map.getTileWidth(),
+			height: this._map.getNumRows() * this._map.getTileHeight()
+		};
 
 		if ( this.vx ) {
 			if ( this._map.isEntityInRow(this) ) {
