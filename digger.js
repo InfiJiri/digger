@@ -111,6 +111,8 @@ Digger.prototype = {
 	kill: function() {
 		//alert("This kills the Digger");
 		this.action = "die";
+
+		this.vx = this.vy = 0;
 	},
 	update: function() {
 		//cd = this._map.getCanvasDimensions();

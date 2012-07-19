@@ -18,6 +18,10 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 	document.onkeydown = function(e) {
 		var digger = self.getDigger();
 
+		if (digger.action == "die") {
+			return;
+		}
+
 		switch( e.keyCode ) {
 			case 32: // SPACE
 				self.togglePause();
@@ -86,11 +90,8 @@ Core.prototype = {
 	gameOver: function() {
 		this.playSong();
 		
-		this.togglePause();
-		//this.togglePause();
-		//alert("game over");
-
-		//this.reset();
+		var self = this;
+		setTimeout(function() { self.reset(); }, 5000);
 	},
 	reset: function() {
 		debug("Core.reset");
@@ -103,7 +104,7 @@ Core.prototype = {
 		this._map.reset();
 		this._hud.reset();
 
-		this._mapRenderer.draw();
+		this._mapRenderer.reset();
 
 		this.playSong();
 		// Undo pause
@@ -161,6 +162,9 @@ Core.prototype = {
 		}
 	},
 	playSong: function() {
+		if (!Debug.enableSound) {
+			return;
+		}
 		var popcorn = "http://www.youtube.com/v/oVO3r16tiek&autoplay=1";
 		var funeral = "http://www.youtube.com/v/5NKMk8IpcV8&autoplay=1";
 
