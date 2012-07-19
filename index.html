@@ -28,6 +28,10 @@
 				border:   1px solid #000000;
 				padding:  20px 0;
 			}
+			
+			.song {
+				display: none;
+			}
 		</style>
 		<script type="text/javascript" src="frametimer.js"></script>
 		<script type="text/javascript" src="spritesheet.js"></script>
@@ -60,10 +64,14 @@
 
 				var core = new Core(gameCanvas, frameTimer, map);
 				core.reset(); // Start game
+				
+				//var wobwob = document.getElementById("popcorn");
+				//setTimeout(function() { wobwob.parentNode.removeChild(wobwob); }, 5000);
 			};
 		</script>
 	</head>
 	<body>
+		<!--<iframe id="popcorn" class="song" swidth="0" height="0" src="http://www.youtube.com/v/oVO3r16tiek&autoplay=1" frameborder="0"></iframe>-->
 		<div id="content">
 			<canvas id="map" width="840" height="305">NO CANVAS</canvas>
 			<canvas id="game" width="840" height="305">NO CANVAS</canvas>

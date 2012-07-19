@@ -44,7 +44,10 @@ Gold.prototype = {
 	_animations: {},
 	_fallStart: null,
 	_fallDelay: 1000, // shake 1 sec before falling
-	state: "bag",	
+	_fallGoldStart: null,
+	_fallGoldDelay: 10, // Display falling gold for 10ms 
+	isdisposed: false,
+	state: "bag",
 	x     : 0,
 	y     : 0,
 	width : 34,
@@ -76,42 +79,59 @@ Gold.prototype = {
 	},
 	fall: function() {
 		var np        = this._map.getNormalizedEntityPosition(this);
-		var index     = ((np.y + 1) * this._map._numcols) + np.x; // Start row + col below bag
+		var nextRow   = np.y + 1;
+		var index     = (nextRow * this._map._numcols) + np.x; // Row + col below bag
 
 		if( this._map._map[ index ] == 0 && index<this._map._map.length) { // Row below bag is empty?
 			index += this._map._numcols;
 
 			this.moveToField( np.x, np.y + 1 );
-		} else {
+		} else if (this.y >= (this.target.y * this._map._tileHeight)) {
 			this.vx = this.vy = 0;
+			this.y = this.target.y * this._map._tileHeight;
 
 			if (this.state == "bagfall") {
 				this.state = "goldfall";
-			}			
+
+				this._fallGoldStart = (new Date).getTime();
+			}
 		}
 	},
 	update: function() {
+		if (this.isdisposed) { // Object is not part of the game anymore
+			return;
+		}
+
 		if (
 			this.state == "shake" &&
 			this._fallDelay <= (new Date).getTime() - this._fallStart ) { // Done shaking? Fall!
-				this.fall();
+			
+			this.fall();
+		}
+
+		if (
+			this.state == "goldfall" &&
+			this._fallGoldDelay <= (new Date).getTime() - this._fallGoldStart ) { // Ha-haaa, gold!
+
+			this.state = "gold";
 		}
  
 		if (this.isMoving()) {
 			var np = this._map.getNormalizedEntityPosition(this);
 
-			if (this.target.x == np.x && this.target.y == np.y ) {
+			if (this.state == "bagfall") {
+				this.fall(); // Falling of bag is a special move, and is handled by 'fall' function.
+			} else if ( this.target.x == np.x && this.target.y == np.y ) {
 				this.vx = this.vy = 0;
 				this.target = null;
-			}
-
-			if (this.state == "bagfall") {
-				this.fall();
 			}
 
 			this.x += this.vx;
 			this.y += this.vy;
 		}
+	},
+	dispose: function() {
+		this.isdisposed = true;
 	},
 	animate: function(context, interpolation) {
 		this._timer.tick();
@@ -132,6 +152,8 @@ Gold.prototype = {
 			this.height);
 	},
 	draw: function(context, interpolation) {
-		this.animate(context, interpolation);
+		if (!this.isdisposed) {
+			this.animate(context, interpolation);
+		}
 	}
 };

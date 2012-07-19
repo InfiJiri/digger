@@ -20,45 +20,18 @@ var Core = function(canvas, frameTimer, map) {
 				break;
 			case 37: // LEFT
 				digger.vx = -digger.speed;
-				// digger.moveLeft
-				//self.map.moveEntity(digger, "left");
-				//digger.vx = -digger.speed;
-
-				/*var normalizedPos = self.map.getNormalizedEntityPosition(digger);
-				debug(normalizedPos.x);
-				var x  = digger.x;
-				var vx = digger.vx;
-				var vy = digger.vy;
-				
-				digger.y += vy;
-				digger.vx = -digger.speed;
-
-				var normalizedPos2 = self.map.getNormalizedEntityPosition(digger);
-				
-				if (normalizedPos.y!=normalizedPos2.y) {
-					digger.y  = y;
-					digger.vy = 0;
-				} else {
-					digger.vx = vx;
-					digger.vy = vy;
-				}*/
 
 				break;
 			case 38: // UP
 				digger.vy = -digger.speed;
-				//self.map.moveEntity(digger, "up");
-				//digger.vy = -digger.speed;
 
 				break;
 			case 39: // RIGHT
 				digger.vx = digger.speed;
-				//self.map.moveEntity(digger, "right");
 
 				break;
 			case 40: // DOWN
 				digger.vy = digger.speed;
-				//self.map.moveEntity(digger, "down");
-				// digger.vy = digger.speed;
 
 				break;
 		}
@@ -122,9 +95,7 @@ Core.prototype = {
 	update: function() {
 		//debug("Core.update");
 
-		
-		// Move to "Move entity"
-		var digger = this.getDigger();
+		// Update all entities in the game
 		for( var i=0; i<this.map.entities.length; i++ ) {
 			var entity = this.map.entities[i];
 			if (entity.update) {
@@ -133,23 +104,27 @@ Core.prototype = {
 		}
 		
 		this.map.update();
-		
+
 		this.detectcollision();	
 
 		this._frametimer.tick();
 	},
 	detectcollision: function() {
+		// Detect collisions between all entities in the game
+	
 		// Not super-efficient, but that can be fixed when shit starts hitting the fan
-		//var entity2 = this.getDigger();
 		for( var i=0; i<this.map.entities.length; i++ ) {
 			var entity1 = this.map.entities[i];
+			if (entity1.isdisposed) { // Entity is not part of the game anymore
+				continue;
+			}
+
 			for( var j=0; j<this.map.entities.length; j++ ) {
-				if (j==i) { // Don't detect collision with self
+				var entity2 = this.map.entities[j];
+				if (j==i || entity1.isdisposed) { // Don't detect collision with self, and don't collide entities that aren't part of the game anymore
 					continue;
 				}
 
-				var entity2 = this.map.entities[j];
-						
 				if (
 					(entity1.x >= entity2.x || (entity1.x+entity1.width) >= entity2.x) &&
 					(entity1.x <= (entity2.x + entity2.width) || entity1.x <= (entity2.x + entity2.width) ) &&
@@ -162,8 +137,6 @@ Core.prototype = {
 				}
 			}
 		}
-
-		
 	},
 	draw: function(interpolation) {
 		this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
@@ -173,8 +146,6 @@ Core.prototype = {
 
 			entity.draw(this._context, interpolation);
 		}
-
-		//this.getDigger().draw(this._context, interpolation);
 
 		Debug.updateFps();
 	},
