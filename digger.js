@@ -102,7 +102,7 @@ Digger.prototype = {
 					} else if ( npDigger.y > npEntity.y ) {
 						//entity.initFall();
 					}
-				} else if (entity.state == "gold" && npDigger.y==npEntity.y) {
+				} else if (entity.state == "gold") {
 					entity.dispose();
 				} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
 					entity.dispose();

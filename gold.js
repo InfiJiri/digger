@@ -57,7 +57,7 @@ Gold.prototype = {
 	vspeed : 3,
 	type: "gold",
 	target: null,
-	initFall: function() {
+/*	initFall: function() {
 		if (this.state == "bag") {
 			this.state = "shake";
 
@@ -65,7 +65,7 @@ Gold.prototype = {
 		} else if (this.state!="shake") { // Not in process of falling?
 			this.fall();
 		}
-	},
+	},*/
 	isMoving: function() {
 		return this.target!==null;
 	},
@@ -86,7 +86,6 @@ Gold.prototype = {
 
 		var tileHeight = this._map.getTileHeight();
 		var tileWidth  = this._map.getTileWidth();
-		debug( x + " " + y );
 		this.target = {x:tileWidth * x, y:tileHeight * y};
 	},
 	moveHorizontal: function(pusherEntity, x) {

@@ -89,9 +89,13 @@ Map.prototype = {
 		var y1 = entity1.y;
 		var y2 = entity1.y + entity1.height;
 
-		return (npDigger.y == npEntity.y) ? // Touching middle of entity?
-			(x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX): 
-			(y1 > minY && y1 < maxY) || (y2 > minY && y2 < maxY);
+		if (npDigger.y == npEntity.y) { // Touching middle of entity?
+			return (x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX);
+		} else if ( npDigger.y == npEntity.y+1 || npDigger.y == npEntity.y-1) {
+			return ((y1 > minY && y1 < maxY) || (y2 > minY && y2 < maxY)) && npDigger.x == npEntity.x;
+		}
+
+		return false;
 	},
 	getEntityOffsetWidth: function(entity) {
 		return ((this._tileWidth - entity.width) * 0.5);
