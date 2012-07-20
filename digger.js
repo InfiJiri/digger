@@ -97,6 +97,7 @@ Digger.prototype = {
 						x = npEntity.x + 1
 					}
 
+					npDigger.vx = 0;
 					entity.moveHorizontal(this, x);
 				} else if ( npDigger.y > npEntity.y ) {
 					//entity.initFall();

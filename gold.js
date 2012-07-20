@@ -62,18 +62,6 @@ Gold.prototype = {
 	},
 	moveToField: function(x, y) {
 		var np = this._map.getNormalizedEntityPosition(this);
-		if (y > np.y) {
-			if (this.state == "bag") {
-				this.state = "shake";
-
-				this._fallStart = (new Date).getTime();
-				return;
-			} else {
-				this.state = this.state == "gold" ? "gold" : "bagfall";
-
-				this.vy = this.vspeed;
-			}
-		}
 
 		var tileHeight = this._map.getTileHeight();
 		var tileWidth  = this._map.getTileWidth();
@@ -93,16 +81,37 @@ Gold.prototype = {
 		this.vx     = pusherEntity.vx * 2; // Bump bag ahead.
 		this.target = {x:tileWidth * x, y:tileHeight * np.y};
 	},
-	fall: function() {
+	fall: function(fallImmediately) { // fallImmediately -> don't shake
+		if (
+			this.state == "shake" &&
+			this._fallDelay >= (new Date).getTime() - this._fallStart ) { 
+
+			debug("dit");
+			// Wait for it
+				
+			return;
+		}
+
+		// Done shaking? Fall!
+
 		var np        = this._map.getNormalizedEntityPosition(this);
 		var nextRow   = np.y + 1;
 		var index     = (nextRow * this._map.getNumCols()) + np.x; // Row + col below bag
 
 		if( this._map.getMapData()[ index ] == 0 && index<this._map.getMapData().length ) { // Row below bag is empty?
-			this.moveToField( np.x, np.y + 1 );
-		} else if (!this.target) { // No target defined, and no empty row under bag
-			return;
-		} else if ( this.y >= this.target.y ) { // Target defined, and no empty row under bag -> stop?
+			if (!fallImmediately && this.state == "bag") { // Initiate delayed fall
+				this.state = "shake";
+
+				this._fallStart = (new Date).getTime();
+				return;
+			}
+
+			this.state = this.state == "gold" ? "gold" : "bagfall";
+
+			this.vy = this.vspeed;
+			
+			this.moveToField( np.x, nextRow );
+		} else if ( this.target && this.y >= this.target.y ) { // Target defined, and no empty row under bag -> stop?
 			this.vx = this.vy = 0;
 			this.y  = this.target.y;
 
@@ -120,20 +129,13 @@ Gold.prototype = {
 		}
 
 		if (
-			this.state == "shake" &&
-			this._fallDelay <= (new Date).getTime() - this._fallStart ) { // Done shaking? Fall!
-			
-			this.fall();
-		}
-
-		if (
 			this.state == "goldfall" &&
 			this._fallGoldDelay <= (new Date).getTime() - this._fallGoldStart ) { // Ha-haaa, gold!
 
 			this.state = "gold";
 		}
 			
- 
+
 		if (this.isMoving()) {
 			var np = this._map.getNormalizedEntityPosition(this);
 
@@ -146,12 +148,14 @@ Gold.prototype = {
 					this.x  = this.target.x; // set exact position
 
 					this.target = null;
-				} 
+
+					this.fall(true);
+				}
 			}
 
 			this.x += this.vx;
 			this.y += this.vy;
-		} else if ( this.state=="bag" || this.state == "gold") {
+		} else {
 			this.fall();
 		}
 	},
