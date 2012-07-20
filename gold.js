@@ -59,6 +59,7 @@ Gold.prototype = {
 	target: null,
 	initFall: function() {
 		this.state = "shake";
+
 		this._fallStart = (new Date).getTime();
 	},
 	isMoving: function() {
@@ -92,15 +93,17 @@ Gold.prototype = {
 	fall: function() {
 		var np        = this._map.getNormalizedEntityPosition(this);
 		var nextRow   = np.y + 1;
-		var index     = (nextRow * this._map._numcols) + np.x; // Row + col below bag
+		var index     = (nextRow * this._map.getNumCols()) + np.x; // Row + col below bag
 
-		if( this._map.getMapData()[ index ] == 0 && index<this._map.getMapData().length) { // Row below bag is empty?
-			index += this._map._numcols;
+		if( this._map.getMapData()[ index ] == 0 && index<this._map.getMapData().length ) { // Row below bag is empty?
+			index += this._map.getNumCols();
 
 			this.moveToField( np.x, np.y + 1 );
-		} else if (this.y >= this.target.y ) {
+		} else if (!this.target) { // No target defined, and no empty row under bag
+			return;
+		} else if ( this.y >= this.target.y ) { // Target defined, and no empty row under bag -> stop?
 			this.vx = this.vy = 0;
-			this.y = this.target.y;
+			this.y  = this.target.y;
 
 			if (this.state == "bagfall") {
 				this.state = "goldfall";
@@ -127,6 +130,7 @@ Gold.prototype = {
 
 			this.state = "gold";
 		}
+			
  
 		if (this.isMoving()) {
 			var np = this._map.getNormalizedEntityPosition(this);
@@ -135,22 +139,19 @@ Gold.prototype = {
 				this.fall(); // Falling of bag is a special move, and is handled by 'fall' function.	
 			} else if (this.state=="bag") { // Moving horizontally
 				if ( (this.vx>0 && this.x >= this.target.x) ||
-					(this.vx<0 && this.x <= this.target.x) ) {
-					this.vx = this.vy = 0;
-					this.x = this.target.x;
+					(this.vx<0 && this.x <= this.target.x) ) { // Reached horizontal destination
+					this.vx = this.vy = 0;   // stop
+					this.x  = this.target.x; // set exact position
 
 					this.target = null;
+
+					this.fall(); // Bag pushed over empty tile? fall.
 				}
 			}
 
-			//if ( this.target.x == np.x && this.target.y == np.y ) {
-
-				//this.vx = this.vy = 0;
-				//this.target = null;
-
 			this.x += this.vx;
 			this.y += this.vy;
-		}
+		}		
 	},
 	dispose: function() {
 		this.isdisposed = true;

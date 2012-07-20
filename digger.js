@@ -99,9 +99,10 @@ Digger.prototype = {
 				var x1 = this.x;
 				var x2 = this.x + this.width;
 				
-				if ( (x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX) ) {
+				if (npDigger.y == npEntity.y) {
+					if ( (x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX) ) { // Approaching from side: touching middle of bag?
 
-					if (npDigger.y == npEntity.y) { // Pushing bag
+						// Pushing bag
 						var x = npEntity.x;
 						if (this.x>bagCenter && this.vx<0) {
 							x = npEntity.x - 1;
@@ -110,15 +111,19 @@ Digger.prototype = {
 						}
 						
 						entity.moveHorizontal(this, x);
-					} else if ( this.y > entity.y ) { // Digging below bag
-						entity.initFall();
-					} else {
-						//debug(this.x);
-						//debug(entity.width * 0.5);
+						if ( this.y > entity.y ) { // Digging below bag
+							entity.initFall();
+						} else {
+							//debug(this.x);
+							//debug(entity.width * 0.5);
+						}
 					}
+				} else if (npDigger.y > npEntity.y && npDigger.x == npEntity.x) { // 
+						entity.initFall();
 				}
 				// FIMXE Implement
 			} else if (entity.state == "bagfall") {
+			
 				//debug("KEIDOOD");
 				this.kill();
 			}
