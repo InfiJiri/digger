@@ -81,9 +81,7 @@ Digger.prototype = {
 		return this._map.getNormalizedEntityPosition(this);
 	},
 	collide: function(entity) {
-		if (entity.type=="emerald") {
-			entity.dispose();
-		} else if (entity.type=="gold") {
+		if (entity.type=="gold") {
 			var npDigger = this.getNormalizedPosition();
 			var npEntity = this._map.getNormalizedEntityPosition(entity);
 
