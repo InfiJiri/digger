@@ -136,7 +136,7 @@ Map.prototype = {
 						break;
 					case N: // Nobbin
 						o = new Nobbin(this);
-						break;						
+						break;
 					case D: // Digger
 						var o = new Digger(this);
 						this._digger = o; // Store reference to array-object

@@ -100,7 +100,7 @@ Digger.prototype = {
 
 						entity.moveHorizontal(this, x);
 					} else if ( npDigger.y > npEntity.y ) {
-						entity.initFall();
+						//entity.initFall();
 					}
 				} else if (entity.state == "gold" && npDigger.y==npEntity.y) {
 					entity.dispose();

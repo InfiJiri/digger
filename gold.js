@@ -72,9 +72,16 @@ Gold.prototype = {
 	moveToField: function(x, y) {
 		var np = this._map.getNormalizedEntityPosition(this);
 		if (y > np.y) {
-			this.state = this.state == "gold" ? "gold" : "bagfall";
+			if (this.state == "bag") {
+				this.state = "shake";
 
-			this.vy += this.vspeed;
+				this._fallStart = (new Date).getTime();
+				return;
+			} else {
+				this.state = this.state == "gold" ? "gold" : "bagfall";
+
+				this.vy += this.vspeed;
+			}
 		}
 
 		var tileHeight = this._map.getTileHeight();
@@ -102,8 +109,6 @@ Gold.prototype = {
 		var index     = (nextRow * this._map.getNumCols()) + np.x; // Row + col below bag
 
 		if( this._map.getMapData()[ index ] == 0 && index<this._map.getMapData().length ) { // Row below bag is empty?
-			index += this._map.getNumCols();
-
 			this.moveToField( np.x, np.y + 1 );
 		} else if (!this.target) { // No target defined, and no empty row under bag
 			return;
@@ -150,14 +155,14 @@ Gold.prototype = {
 					this.x  = this.target.x; // set exact position
 
 					this.target = null;
-
-					this.fall(); // Bag pushed over empty tile? fall.
-				}
+				} 
 			}
 
 			this.x += this.vx;
 			this.y += this.vy;
-		}		
+		} else if ( this.state=="bag" ) {
+			this.fall();
+		}
 	},
 	dispose: function() {
 		this.isdisposed = true;
