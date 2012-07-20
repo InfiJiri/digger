@@ -12,15 +12,15 @@ var Map = function(data) {
 	// TODO load map
 	// TEST map
 	data = [
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, H, 1,
-		1,	1,	G,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, N, 1,
-		1,	1,	1,	G,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1 ];
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 0, H, 1,
+		1,	1,	G,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, N, 1,
+		1,	1,	1,	G,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	0,	0,	0,	0, 0, 0, 0, 1, 1, 1,
+		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1, 1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1 ];
 
 	// Store original map
 	this._start = data;
@@ -71,6 +71,17 @@ Map.prototype = {
 	getTileHeight: function() {
 		return this._tileHeight;
 	},
+	canEntityEnterTile: function(entity, x, y) {
+		//if (entity.type == "digger") {
+		//	}
+		if ( entity.type != "digger" ) {
+			if ( this.getPositionValue(x, y) != 1 ) {
+				return true;
+			}
+		}
+
+		return false;
+	},
 	isEntityTouching: function(entity1, entity2) {
 		var npEntity1 = this.getNormalizedEntityPosition(entity1);
 		var npEntity2 = this.getNormalizedEntityPosition(entity2);
@@ -102,7 +113,10 @@ Map.prototype = {
 	},
 	getEntityOffsetHeight: function(entity) {
 		return ((this._tileHeight - entity.height) * 0.5);
-	},	
+	},
+	getPositionValue: function(x, y) {
+		return this._map[ y * this.getNumCols() + x ];
+	},
 	getNormalizedPosition: function(x, y) {
 		return { 
 			x: Math.floor(x / this._tileWidth), 

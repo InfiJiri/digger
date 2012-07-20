@@ -113,7 +113,7 @@ Gold.prototype = {
 			} else if (this.state == "bagfall" && entity.y>this.y) { // Bag to the face?
 				entity.kill();
 			}
-		} else if (entity.type=="hobbin") {
+		} else if (entity.type=="hobbin" && this.state=="bag") {
 			this.dispose();
 		}
 	},	
