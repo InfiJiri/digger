@@ -87,6 +87,12 @@ Digger.prototype = {
 			var npDigger = this.getNormalizedPosition();
 			var npEntity = this._map.getNormalizedEntityPosition(entity);
 
+			if ( npDigger.y != npEntity.y ) {
+				this.y = this.vy >0 ? this.y-this.speed : this.y+this.speed;
+
+				this.vy = 0;
+			}			
+
 			if (entity.state == "bag") {
 				if ( npDigger.y == npEntity.y ) {
 					// Pushing bag
@@ -97,10 +103,8 @@ Digger.prototype = {
 						x = npEntity.x + 1
 					}
 
-					npDigger.vx = 0;
+					//this.vx = 0;
 					entity.moveHorizontal(this, x);
-				} else if ( npDigger.y > npEntity.y ) {
-					//entity.initFall();
 				}
 			} else if (entity.state == "gold") {
 				entity.dispose();

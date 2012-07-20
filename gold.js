@@ -86,7 +86,6 @@ Gold.prototype = {
 			this.state == "shake" &&
 			this._fallDelay >= (new Date).getTime() - this._fallStart ) { 
 
-			debug("dit");
 			// Wait for it
 				
 			return;
