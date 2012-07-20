@@ -58,9 +58,13 @@ Gold.prototype = {
 	type: "gold",
 	target: null,
 	initFall: function() {
-		this.state = "shake";
+		if (this.state == "bag") {
+			this.state = "shake";
 
-		this._fallStart = (new Date).getTime();
+			this._fallStart = (new Date).getTime();
+		} else if (this.state!="shake") { // Not in process of falling?
+			this.fall();
+		}
 	},
 	isMoving: function() {
 		return this.target!==null;
@@ -68,7 +72,7 @@ Gold.prototype = {
 	moveToField: function(x, y) {
 		var np = this._map.getNormalizedEntityPosition(this);
 		if (y > np.y) {
-			this.state = "bagfall";
+			this.state = this.state == "gold" ? "gold" : "bagfall";
 
 			this.vy += this.vspeed;
 		}
@@ -81,6 +85,8 @@ Gold.prototype = {
 	moveHorizontal: function(pusherEntity, x) {
 		var np = this._map.getNormalizedEntityPosition(this);
 		if ( x<0 || x==this._map.getNumCols() ) { // Border reached.
+			pusherEntity.vx = 0;
+
 			return;
 		}
 
