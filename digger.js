@@ -81,34 +81,7 @@ Digger.prototype = {
 		return this._map.getNormalizedEntityPosition(this);
 	},
 	collide: function(entity) {
-		if (entity.type=="gold") {
-			var npDigger = this.getNormalizedPosition();
-			var npEntity = this._map.getNormalizedEntityPosition(entity);
-
-			if ( npDigger.y != npEntity.y ) {
-				dy      = this.vy >0 ? -this.speed : this.speed;
-				this.y += dy;
-				this.vy = 0;
-			}			
-
-			if (entity.state == "bag") {
-				if ( npDigger.y == npEntity.y ) {
-					// Pushing bag
-					var x = npEntity.x;
-					if (this.vx<0) {
-						x = npEntity.x - 1;
-					} else if (this.vx>0) {
-						x = npEntity.x + 1
-					}
-
-					entity.moveHorizontal(this, x);
-				}
-			} else if (entity.state == "gold") {
-				entity.dispose();
-			} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
-				this.kill();
-			}
-		} else if (entity.type == "nobbin" || entity.type=="hobbin") { // Touch enemy?
+		if (entity.type == "nobbin" || entity.type=="hobbin") { // Touch enemy?
 			this.kill();
 		}
 	},
