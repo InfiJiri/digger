@@ -87,42 +87,30 @@ Digger.prototype = {
 			var npDigger = this.getNormalizedPosition();
 			var npEntity = this._map.getNormalizedEntityPosition(entity);
 
-			// Due to Digger.speed > 1, not all (pixel) positions in the map
-			// can be reached.
-			var bagCenter = entity.x + (entity.width * 0.5);
-			var minX      = bagCenter - (0.25 * entity.width);
-			var maxX      = bagCenter + (0.25 * entity.width);
-
-			var x1 = this.x;
-			var x2 = this.x + this.width;
-
-			if ( ( (x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX) ) ) { // Touching middle of bag? (when approaching from side, row +/- 1)
+			if (this._map.isEntityTouching(this, entity)) { // FIXME should replace collision detection in Core
 				if (entity.state == "bag") {
 					if ( npDigger.y == npEntity.y ) {
 						// Pushing bag
 						var x = npEntity.x;
-						if (this.x>bagCenter && this.vx<0) {
+						if (this.vx<0) {
 							x = npEntity.x - 1;
-						} else if (this.x<bagCenter && this.vx>0) {
+						} else if (this.vx>0) {
 							x = npEntity.x + 1
 						}
 
 						entity.moveHorizontal(this, x);
+					} else if ( npDigger.y > npEntity.y ) {
+						entity.initFall();
 					}
 				} else if (entity.state == "gold" && npDigger.y==npEntity.y) {
 					entity.dispose();
-				}
-
-				if (npDigger.y > npEntity.y) {
-					entity.initFall();
-				}
-			} else if (npDigger.y > npEntity.y && npEntity.x == npDigger.x && this.vy) {
-				if (entity.state == "bag") {
-					entity.initFall();
-				} else if (entity.state=="gold") {
+				} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
 					entity.dispose();
+					this.kill();
 				}
-			} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
+			}
+		} else if (entity.type == "nobbin" || entity.type=="hobbin") {
+			if (this._map.isEntityTouching(this, entity)) {
 				this.kill();
 			}
 		}

@@ -13,9 +13,9 @@ var Map = function(data) {
 	// TEST map
 	data = [
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, H, 1,
 		1,	1,	G,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, N, 1,
 		1,	1,	1,	G,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	E,	E,	E,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1,	1, 1, 1, 1, 1, 1,
@@ -71,6 +71,28 @@ Map.prototype = {
 	getTileHeight: function() {
 		return this._tileHeight;
 	},
+	isEntityTouching: function(entity1, entity2) {
+		var npDigger = entity1._map.getNormalizedEntityPosition(entity1);
+		var npEntity = entity2._map.getNormalizedEntityPosition(entity2);
+
+		// Due to Entity.speed > 1, not all (pixel) positions in the map
+		// can be reached.
+		var bagCenter = entity2.x + (entity2.width * 0.5);
+		var bagMiddle = entity2.y + (entity2.height * 0.5);
+		var minX      = bagCenter - (0.25 * entity2.width);
+		var maxX      = bagCenter + (0.25 * entity2.width);
+		var minY      = bagMiddle - (0.25 * entity2.height);
+		var maxY      = bagMiddle + (0.25 * entity2.height);
+
+		var x1 = entity1.x;
+		var x2 = entity1.x + entity1.width;
+		var y1 = entity1.y;
+		var y2 = entity1.y + entity1.height;
+
+		return (npDigger.y == npEntity.y) ? // Touching middle of entity?
+			(x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX): 
+			(y1 > minY && y1 < maxY) || (y2 > minY && y2 < maxY);
+	},
 	getEntityOffsetWidth: function(entity) {
 		return ((this._tileWidth - entity.width) * 0.5);
 	},
@@ -109,6 +131,12 @@ Map.prototype = {
 					case G: // Gold
 						o = new Gold(this);
 						break;
+					case H: // Hobbin
+						o = new Hobbin(this);
+						break;
+					case N: // Nobbin
+						o = new Nobbin(this);
+						break;						
 					case D: // Digger
 						var o = new Digger(this);
 						this._digger = o; // Store reference to array-object
