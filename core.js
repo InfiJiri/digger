@@ -26,18 +26,22 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 			case 32: // SPACE
 				self.togglePause();
 				break;
+			case 65:
 			case 37: // LEFT
 				digger.vx = -digger.speed;
 
 				break;
+			case 87:
 			case 38: // UP
 				digger.vy = -digger.speed;
 
 				break;
+			case 68:
 			case 39: // RIGHT
 				digger.vx = digger.speed;
 
 				break;
+			case 83:
 			case 40: // DOWN
 				digger.vy = digger.speed;
 
@@ -48,11 +52,15 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 	document.onkeyup = function(e) {
 		var digger = self.getDigger();
 		switch( e.keyCode ) {
+			case 65:
+			case 68:
 			case 37: // LEFT
 			case 39: // RIGHT
 				digger.vx = 0;
 				
 				break;
+			case 87:
+			case 83:
 			case 38: // UP
 			case 40: // DOWN
 				digger.vy = 0;

@@ -88,8 +88,8 @@ Digger.prototype = {
 			var npEntity = this._map.getNormalizedEntityPosition(entity);
 
 			if ( npDigger.y != npEntity.y ) {
-				this.y = this.vy >0 ? this.y-this.speed : this.y+this.speed;
-
+				dy      = this.vy >0 ? -this.speed : this.speed;
+				this.y += dy;
 				this.vy = 0;
 			}			
 
@@ -103,7 +103,6 @@ Digger.prototype = {
 						x = npEntity.x + 1
 					}
 
-					//this.vx = 0;
 					entity.moveHorizontal(this, x);
 				}
 			} else if (entity.state == "gold") {
