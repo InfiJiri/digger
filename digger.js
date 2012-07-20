@@ -87,32 +87,28 @@ Digger.prototype = {
 			var npDigger = this.getNormalizedPosition();
 			var npEntity = this._map.getNormalizedEntityPosition(entity);
 
-			if (this._map.isEntityTouching(this, entity)) { // FIXME should replace collision detection in Core
-				if (entity.state == "bag") {
-					if ( npDigger.y == npEntity.y ) {
-						// Pushing bag
-						var x = npEntity.x;
-						if (this.vx<0) {
-							x = npEntity.x - 1;
-						} else if (this.vx>0) {
-							x = npEntity.x + 1
-						}
-
-						entity.moveHorizontal(this, x);
-					} else if ( npDigger.y > npEntity.y ) {
-						//entity.initFall();
+			if (entity.state == "bag") {
+				if ( npDigger.y == npEntity.y ) {
+					// Pushing bag
+					var x = npEntity.x;
+					if (this.vx<0) {
+						x = npEntity.x - 1;
+					} else if (this.vx>0) {
+						x = npEntity.x + 1
 					}
-				} else if (entity.state == "gold") {
-					entity.dispose();
-				} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
-					entity.dispose();
-					this.kill();
+
+					entity.moveHorizontal(this, x);
+				} else if ( npDigger.y > npEntity.y ) {
+					//entity.initFall();
 				}
-			}
-		} else if (entity.type == "nobbin" || entity.type=="hobbin") {
-			if (this._map.isEntityTouching(this, entity)) {
+			} else if (entity.state == "gold") {
+				entity.dispose();
+			} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
+				entity.dispose();
 				this.kill();
 			}
+		} else if (entity.type == "nobbin" || entity.type=="hobbin") { // Touch enemy?
+			this.kill();
 		}
 	},
 	kill: function() {

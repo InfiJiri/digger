@@ -72,8 +72,8 @@ Map.prototype = {
 		return this._tileHeight;
 	},
 	isEntityTouching: function(entity1, entity2) {
-		var npDigger = entity1._map.getNormalizedEntityPosition(entity1);
-		var npEntity = entity2._map.getNormalizedEntityPosition(entity2);
+		var npDigger = this.getNormalizedEntityPosition(entity1);
+		var npEntity = this.getNormalizedEntityPosition(entity2);
 
 		// Due to Entity.speed > 1, not all (pixel) positions in the map
 		// can be reached.
@@ -105,20 +105,15 @@ Map.prototype = {
 	},	
 	getNormalizedPosition: function(x, y) {
 		return { 
-			x: Math.ceil(x / this._tileWidth), 
-			y: Math.ceil(y / this._tileHeight) 
+			x: Math.floor(x / this._tileWidth), 
+			y: Math.floor(y / this._tileHeight) 
 		}	
 	},
-	getNormalizedEntityPosition: function(entity){
-		var x = entity.x - this.getEntityOffsetWidth(entity);
-		var y = entity.y - this.getEntityOffsetHeight(entity);
+	getNormalizedEntityPosition: function(entity){ // Where's the center+middle of this entity?
+		var x = entity.x + (entity.width * 0.5);
+		var y = entity.y + (entity.height * 0.5);
 
 		return this.getNormalizedPosition(x , y);
-	},
-	centerEntity: function(entity) {
-		var normalizedPosition = this.getNormalizedEntityPosition(entity);
-		entity.x = normalizedPosition.x * this._tileWidth + this.getEntityOffsetWidth(entity);
-		entity.y = normalizedPosition.y * this._tileWidth + this.getEntityOffsetHeight(entity);
 	},
 	reset: function() {	
 		this.entities = [];
@@ -157,7 +152,8 @@ Map.prototype = {
 		}
 	},
 	update: function() {
-		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
+		var normalizedPosition = this.getNormalizedPosition(this._digger.x, this._digger.y);
+
 		this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = 0; // Update tunnels in map
 	}
 };
