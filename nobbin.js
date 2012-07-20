@@ -13,9 +13,9 @@ var Nobbin = function(map) {
 
 	this._animations = {
 		"walk": new Animation([
-			{ sprite: "walk1", time: 0.1 },
-			{ sprite: "walk2", time: 0.1 },
-			{ sprite: "walk3", time: 0.1 },
+			{ sprite: "walk1", time: 0.15 },
+			{ sprite: "walk2", time: 0.15 },
+			{ sprite: "walk3", time: 0.15 },
 		], sprites)		
 	};	
 	

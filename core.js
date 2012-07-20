@@ -151,8 +151,9 @@ Core.prototype = {
 				if (j==i || entity1.isdisposed) { // Don't detect collision with self, and don't collide entities that aren't part of the game anymore
 					continue;
 				}
-
+				
 				if (this._map.isEntityTouching(entity1, entity2)) {
+
 					if (entity2.collide) { // Entity has 'collide' function?
 						entity2.collide(entity1);
 					}					

@@ -72,27 +72,27 @@ Map.prototype = {
 		return this._tileHeight;
 	},
 	isEntityTouching: function(entity1, entity2) {
-		var npDigger = this.getNormalizedEntityPosition(entity1);
-		var npEntity = this.getNormalizedEntityPosition(entity2);
+		var npEntity1 = this.getNormalizedEntityPosition(entity1);
+		var npEntity2 = this.getNormalizedEntityPosition(entity2);
 
 		// Due to Entity.speed > 1, not all (pixel) positions in the map
 		// can be reached.
-		var bagCenter = entity2.x + (entity2.width * 0.5);
-		var bagMiddle = entity2.y + (entity2.height * 0.5);
-		var minX      = bagCenter - (0.25 * entity2.width);
-		var maxX      = bagCenter + (0.25 * entity2.width);
-		var minY      = bagMiddle - (0.25 * entity2.height);
-		var maxY      = bagMiddle + (0.25 * entity2.height);
+		var npEntity2Center = entity2.x + (entity2.width * 0.5);
+		var npEntity2Middle = entity2.y + (entity2.height * 0.5);
+		var minX      = npEntity2Center - (0.25 * entity2.width);
+		var maxX      = npEntity2Center + (0.25 * entity2.width);
+		var minY      = npEntity2Middle - (0.25 * entity2.height);
+		var maxY      = npEntity2Middle + (0.25 * entity2.height);
 
 		var x1 = entity1.x;
 		var x2 = entity1.x + entity1.width;
 		var y1 = entity1.y;
 		var y2 = entity1.y + entity1.height;
 
-		if (npDigger.y == npEntity.y) { // Touching middle of entity?
-			return (x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX);
-		} else if ( npDigger.y == npEntity.y+1 || npDigger.y == npEntity.y-1) {
-			return ((y1 > minY && y1 < maxY) || (y2 > minY && y2 < maxY)) && npDigger.x == npEntity.x;
+		if (npEntity1.y == npEntity2.y) { // Touching middle of entity?
+			return ((x1 > minX && x1 < maxX) || (x2 > minX && x2 < maxX));
+		} else if ( npEntity1.y == npEntity2.y+1 || npEntity1.y == npEntity2.y-1) {
+			return (((y1 > minY && y1 < maxY) || (y2 > minY && y2 < maxY)) && npEntity1.x == npEntity2.x);
 		}
 
 		return false;
@@ -152,7 +152,7 @@ Map.prototype = {
 		}
 	},
 	update: function() {
-		var normalizedPosition = this.getNormalizedPosition(this._digger.x, this._digger.y);
+		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
 
 		this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = 0; // Update tunnels in map
 	}

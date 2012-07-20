@@ -104,7 +104,6 @@ Digger.prototype = {
 			} else if (entity.state == "gold") {
 				entity.dispose();
 			} else if (entity.state == "bagfall" && this.y>entity.y) { // Bag to the face?
-				entity.dispose();
 				this.kill();
 			}
 		} else if (entity.type == "nobbin" || entity.type=="hobbin") { // Touch enemy?

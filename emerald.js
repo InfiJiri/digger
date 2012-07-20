@@ -12,8 +12,8 @@ Emerald.prototype = {
 	isdisposed: false,
 	x: 0,
 	y: 0,
-	width: 23,
-	height: 18,
+	width: 34,
+	height: 34,
 	dispose: function() {
 		this.isdisposed = true;
 	},

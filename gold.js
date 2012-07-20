@@ -54,18 +54,9 @@ Gold.prototype = {
 	height: 34,	
 	vx    : 0,
 	vy    : 0,
-	vspeed : 3,
+	vspeed : 4,
 	type: "gold",
 	target: null,
-/*	initFall: function() {
-		if (this.state == "bag") {
-			this.state = "shake";
-
-			this._fallStart = (new Date).getTime();
-		} else if (this.state!="shake") { // Not in process of falling?
-			this.fall();
-		}
-	},*/
 	isMoving: function() {
 		return this.target!==null;
 	},
@@ -80,7 +71,7 @@ Gold.prototype = {
 			} else {
 				this.state = this.state == "gold" ? "gold" : "bagfall";
 
-				this.vy += this.vspeed;
+				this.vy = this.vspeed;
 			}
 		}
 
@@ -119,6 +110,7 @@ Gold.prototype = {
 				this.state = "goldfall";
 
 				this._fallGoldStart = (new Date).getTime();
+				this.target = null;
 			}
 		}
 	},
@@ -159,7 +151,7 @@ Gold.prototype = {
 
 			this.x += this.vx;
 			this.y += this.vy;
-		} else if ( this.state=="bag" ) {
+		} else if ( this.state=="bag" || this.state == "gold") {
 			this.fall();
 		}
 	},
