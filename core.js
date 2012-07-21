@@ -189,7 +189,9 @@ Core.prototype = {
 		for( var i=0; i<this._map.entities.length; i++ ) {
 			var entity = this._map.entities[i];
 
-			entity.draw(this._context, interpolation);
+			if (entity.draw) {
+				entity.draw(this._context, interpolation);
+			}
 		}		
 		
 		Debug.updateFps();

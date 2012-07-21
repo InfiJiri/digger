@@ -81,7 +81,7 @@ Digger.prototype = {
 		return this._map.getNormalizedEntityPosition(this);
 	},
 	collide: function(entity) {
-		if (entity.type == "nobbin" || entity.type=="hobbin") { // Touch enemy?
+		if (entity.type == "monster") { // Touch enemy?
 			this.kill();
 		}
 	},

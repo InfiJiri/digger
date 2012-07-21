@@ -1,34 +1,42 @@
-var Hobbin = function(map) {
-	debug("Hobbin.init");
+var Monster = function(map) {
+	debug("Monster.init");
 
 	var sprites = new SpriteSheet({
 		width: 34,
 		height: 34,
 		sprites: {
-			"walk1": { x: 0, y: 0 },
-			"walk2": { x: 1, y: 0 },
-			"walk3": { x: 2, y: 0 },
+			"nobbin1": { x: 0, y: 0 },
+			"nobbin2": { x: 1, y: 0 },
+			"nobbin3": { x: 2, y: 0 },
+			"hobbin1": { x: 0, y: 1 },
+			"hobbin2": { x: 1, y: 1 },
+			"hobbin3": { x: 2, y: 1 },			
 		}
 	});
 
 	this._animations = {
-		"walk": new Animation([
-			{ sprite: "walk1", time: 0.15 },
-			{ sprite: "walk2", time: 0.15 },
-			{ sprite: "walk3", time: 0.15 },
-		], sprites)		
-	};	
+		"nobbin": new Animation([
+			{ sprite: "nobbin1", time: 0.15 },
+			{ sprite: "nobbin2", time: 0.15 },
+			{ sprite: "nobbin3", time: 0.15 },
+		], sprites),
+		"hobbin": new Animation([
+			{ sprite: "hobbin1", time: 0.15 },
+			{ sprite: "hobbin2", time: 0.15 },
+			{ sprite: "hobbin3", time: 0.15 },
+		], sprites),		
+	};
 	
 	this._image = new Image();
-	this._image.src = "images/hobbin.png";
+	this._image.src = "images/monster.png";
 	this._timer = new FrameTimer();
 	this._map = map;
 };
 
-Hobbin.prototype = {
+Monster.prototype = {
 	_animations: {},
-    action: "walk",
-	type: "hobbin",
+	type: "monster",
+	state: "nobbin",
 	vx: 0,
 	vy: 0,
 	x: 0,
@@ -42,13 +50,13 @@ Hobbin.prototype = {
 	width:    34,
 
 	kill: function() {
-		alert("This kills the Hobbin");
+		alert("This kills the Monster");
 	},
 
 	animate: function(context, interpolation) {
 		this._timer.tick();
 
-		var animation = this._animations[this.action];
+		var animation = this._animations[this.state];
 		animation.animate(this._timer.getSeconds());
 
 		var frame = animation.getSprite();
@@ -88,7 +96,7 @@ Hobbin.prototype = {
 
 	  var digger = this._map.getDigger();
 	  npDigger = digger.getNormalizedPosition();
-	  npHobbin = this._map.getNormalizedEntityPosition(this);
+	  npMonster = this._map.getNormalizedEntityPosition(this);
 
 	  if (this.target) {
 		if ((this.vx>0 && this.x>=this.target.x) ||
@@ -115,7 +123,7 @@ Hobbin.prototype = {
 
 		/* If we are here the monster needs to know which way to turn next. */
 
-		/* Turn hobbin back into nobbin if it's had its time */
+		/* Turn monster back into nobbin if it's had its time */
 		//if (this.hnt>30+(digger.Main.levof10()<<1)) {
 		//  if (!this.nob) {
 		//	this.hnt=0;
@@ -129,8 +137,8 @@ Hobbin.prototype = {
 		var UP     = 2;
 		var DOWN   = 6;
 		
-		if (Math.abs(npDigger.y-npHobbin.y)>Math.abs(npDigger.x-npHobbin.x)) {
-		  if (npDigger.y<npHobbin.y) {
+		if (Math.abs(npDigger.y-npMonster.y)>Math.abs(npDigger.x-npMonster.x)) {
+		  if (npDigger.y<npMonster.y) {
 			mdirp1 = {x:0, y:-1};   //UP;
 			mdirp4 = {x:0, y:1}; //DOWN;
 		  }	else {
@@ -138,7 +146,7 @@ Hobbin.prototype = {
 			mdirp4 = {x:0, y:-1};   //UP;
 		  }
 
-		  if (npDigger.x<npHobbin.x) {
+		  if (npDigger.x<npMonster.x) {
 			mdirp2 = {x:-1, y:0}; //LEFT;
 			mdirp3 = {x:1, y:0}; //RIGHT;
 		  } else {
@@ -146,7 +154,7 @@ Hobbin.prototype = {
 			mdirp3 = {x:-1, y:0}; //LEFT;
 		  }
 		} else {
-		  if (npDigger.x<npHobbin.x) {
+		  if (npDigger.x<npMonster.x) {
 		    mdirp1 = {x:-1, y:0}; //LEFT;
 			mdirp4 = {x:1, y:0}; //RIGHT;
 		  } else {
@@ -154,7 +162,7 @@ Hobbin.prototype = {
 			mdirp4 = {x:-1, y:0}; //LEFT;
 		  }
 
-		  if (npDigger.y<npHobbin.y) {
+		  if (npDigger.y<npMonster.y) {
 			mdirp2 = {x:0, y:-1};   //UP;
 			mdirp3 = {x:0, y:1}; //DOWN;
 		  } else { 
@@ -172,7 +180,7 @@ Hobbin.prototype = {
 		/* Adjust priorities so that monsters don't reverse direction unless they
 		   really have to */
 	   dir = this.direction;
-	   if (dir.x) { // What is the reverse direction of Hobbin?
+	   if (dir.x) { // What is the reverse direction of Monster?
 			dir = { x: this.direction.x>0 ? -1 : 1, y: 0 }; 
 	   } else if (dir.y) {
 			dir = { x: 0, y: this.direction.y>0 ? -1 : 1 }; 
@@ -205,25 +213,25 @@ Hobbin.prototype = {
 
 		/* Check field and find direction */
 
-		if ( this.canEnterTile( npHobbin.x + mdirp1.x, npHobbin.y + mdirp1.y )) {
-		    this.target = {x: npHobbin.x + mdirp1.x, y: npHobbin.y + mdirp1.y };
+		if ( this.canEnterTile( npMonster.x + mdirp1.x, npMonster.y + mdirp1.y )) {
+		    this.target = {x: npMonster.x + mdirp1.x, y: npMonster.y + mdirp1.y };
 			dir = mdirp1;
-		} else if (this.canEnterTile( npHobbin.x + mdirp2.x, npHobbin.y + mdirp2.y )) {
-			this.target = {x: npHobbin.x + mdirp1.x, y: npHobbin.y + mdirp1.y };
+		} else if (this.canEnterTile( npMonster.x + mdirp2.x, npMonster.y + mdirp2.y )) {
+			this.target = {x: npMonster.x + mdirp1.x, y: npMonster.y + mdirp1.y };
 			dir = mdirp2;
-	    } else if (this.canEnterTile( npHobbin.x + mdirp3.x, npHobbin.y + mdirp3.y )) {
-			this.target = {x: npHobbin.x + mdirp1.x, y: npHobbin.y + mdirp1.y };
+	    } else if (this.canEnterTile( npMonster.x + mdirp3.x, npMonster.y + mdirp3.y )) {
+			this.target = {x: npMonster.x + mdirp1.x, y: npMonster.y + mdirp1.y };
 			dir = mdirp3;
-		} else if (this.canEnterTile( npHobbin.x + mdirp4.x, npHobbin.y + mdirp4.y )) {
+		} else if (this.canEnterTile( npMonster.x + mdirp4.x, npMonster.y + mdirp4.y )) {
 			dir = mdirp4;
 	    } else {
 			dir = null;
-			debug("Hobbin.NEIN");
+			debug("Monster.NEIN");
 		}
 
-		this.target = {x: (npHobbin.x + dir.x) * this._map.getTileWidth(), y: (npHobbin.y + dir.y) * this._map.getTileHeight() };
+		this.target = {x: (npMonster.x + dir.x) * this._map.getTileWidth(), y: (npMonster.y + dir.y) * this._map.getTileHeight() };
 
-		/* Hobbins don't care about the field: they go where they want. */
+		/* Monsters don't care about the field: they go where they want. */
 		//if (!this.nob) {
 		//  dir=mdirp1;
 		//}
@@ -238,21 +246,21 @@ Hobbin.prototype = {
 	  //}
 
 	  /* If monster is about to go off edge of screen, stop it. */
-	  //if ((npHobbin.x==292 && this.direction==0) ||
-	//	  (npHobbin.x==12 && this.direction==4) ||
-		//  (npHobbin.y==180 && this.direction==6) ||
-		 // (npHobbin.y==18 && this.direction==2)) {
+	  //if ((npMonster.x==292 && this.direction==0) ||
+	//	  (npMonster.x==12 && this.direction==4) ||
+		//  (npMonster.y==180 && this.direction==6) ||
+		 // (npMonster.y==18 && this.direction==2)) {
 		//this.direction = -1;
 	  //}
 
-	  /* Change hdir for hobbin */
+	  /* Change hdir for monster */
 	  //if (this.direction==4 || this.direction==0) {
 	//	this.hdir=this.direction;
 	  //}
 
-	  /* Hobbins digger */
+	  /* Monsters digger */
 	  //if (!this.nob) {
-	//	digger.Drawing.eatfield(npHobbin.x,npHobbin.y,this.direction);
+	//	digger.Drawing.eatfield(npMonster.x,npMonster.y,this.direction);
 	  //}
 
 	  /* (Draw new tunnels) and move monster */
@@ -263,9 +271,9 @@ Hobbin.prototype = {
 		this.vy = this.vspeed * this.direction.y;
 	  }
 		
-	  /* Hobbins can eat emeralds */
+	  /* Monsters can eat emeralds */
 	  //if (!this.nob) {
-	//		digger.hitemerald((npHobbin.x-12)/20,(npHobbin.y-18)/18, (npHobbin.x-12)%20,(npHobbin.y-18)%18, this.direction);
+	//		digger.hitemerald((npMonster.x-12)/20,(npMonster.y-18)/18, (npMonster.x-12)%20,(npMonster.y-18)%18, this.direction);
 	  //}
 
 	  /* If digger's gone, don't bother */
@@ -281,7 +289,7 @@ Hobbin.prototype = {
 	//	this.vy = 0;
 	 // }
 
-	  /* Increase time counter for hobbin */
+	  /* Increase time counter for monster */
 	  //if (!this.nob && this.hnt<100) {
 	//	this.hnt++;
 	  //}
@@ -310,19 +318,19 @@ Hobbin.prototype = {
 //		if (mongotgold) /* No time penalty if monster eats gold */
 //		  this.t=0;
 //		if (!this.nob && this.hnt>1)
-//		  digger.Bags.removebags(clbits); /* Hobbins eat bags */
+//		  digger.Bags.removebags(clbits); /* Monsters eat bags */
 //	  }
 
-	  /* Increase hobbin cross counter */
+	  /* Increase monster cross counter */
 	  //if (this.nob && ((clbits&0x3f00)!=0) && digger.digonscr) {
 	//	this.hnt++;
 	  //}
 
 	  /* See if bags push monster back */
 	  //if (!push) {
-		//digger.Drawing.drawmon(mon,this.nob,this.hdir,npHobbin.x,npHobbin.y);
+		//digger.Drawing.drawmon(mon,this.nob,this.hdir,npMonster.x,npMonster.y);
 		//digger.Main.incpenalty();
-		//if (this.nob) /* The other way to create hobbin: stuck on h-bag */
+		//if (this.nob) /* The other way to create monster: stuck on h-bag */
 		//  this.hnt++;
 		//if ((this.direction==2 || this.direction==6) && this.nob)
 		  //this.direction=digger.reversedir(this.direction); /* If vertical, give up */
@@ -340,9 +348,9 @@ Hobbin.prototype = {
 	 // }
 
 	  /* Update co-ordinates */
-	  //this.h  = (npHobbin.x-12)/20;
-	  //this.v  = (npHobbin.y-18)/18;
-	  //npHobbin.xr = (npHobbin.x-12)%20;
-	  //npHobbin.yr = (npHobbin.y-18)%18;
+	  //this.h  = (npMonster.x-12)/20;
+	  //this.v  = (npMonster.y-18)/18;
+	  //npMonster.xr = (npMonster.x-12)%20;
+	  //npMonster.yr = (npMonster.y-18)%18;
 	}
 }

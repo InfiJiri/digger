@@ -3,8 +3,10 @@ var B = 3;	// Bonus
 var D = 4;	// Digger
 var E = 5;  // Emerald
 var G = 6;  // Gold
-var H = 7;  // Hobbin
-var N = 8;  // Nobbin
+//var H = 7;  // Hobbin
+//var N = 8;  // Nobbin
+var M = 7;  // Monster
+var S = 8;  // Spawm-point (monsters)
 
 var Map = function(data) {
 	debug("Map.init");
@@ -13,10 +15,10 @@ var Map = function(data) {
 	// TEST map
 	data = [
 		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 0, H, 1,
+		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 0, S, 1,
 		1,	1,	G,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, N, 1,
-		1,	1,	1,	G,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
+		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
+		1,	1,	G,	G,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
 		1,	1,	1,	1,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	0,	0,	0,	0, 0, 0, 0, 1, 1, 1,
 		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1, 1, 1, 1, 1, 1, 1,
 		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1,
@@ -144,15 +146,15 @@ Map.prototype = {
 					case G: // Gold
 						o = new Gold(this);
 						break;
-					case H: // Hobbin
+					case M: // Monster
 						o = new Hobbin(this);
-						break;
-					case N: // Nobbin
-						o = new Nobbin(this);
 						break;
 					case D: // Digger
 						var o = new Digger(this);
 						this._digger = o; // Store reference to array-object
+						break;
+					case S: // Spawn-point
+						o = new SpawnPoint(this);
 						break;
 					default:
 						continue; // Nothing to do
@@ -168,6 +170,9 @@ Map.prototype = {
 	update: function() {
 		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
 
-		this._map[normalizedPosition.y * this._numcols + normalizedPosition.x] = 0; // Update tunnels in map
+		var coord = normalizedPosition.y * this._numcols + normalizedPosition.x;
+		if (this._map[coord]!=S) { // Don't override spawn point
+			this._map[coord] = 0; // Update tunnels in map
+		}
 	}
 };

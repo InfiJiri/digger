@@ -86,7 +86,7 @@ Gold.prototype = {
 		return this._map.getNormalizedEntityPosition(this);
 	},
 	collide: function(entity) {
-		if (entity.type=="digger" || entity.type=="hobbin" ) {
+		if (entity.type=="digger" || entity.type=="hobbin" || entity.type=="gold" ) {
 			var npDigger = entity.getNormalizedPosition();
 			var npEntity = this.getNormalizedPosition();
 
@@ -108,9 +108,9 @@ Gold.prototype = {
 
 					this.moveHorizontal(entity, x);
 				}
-			} else if (this.state == "gold") {
+			} else if (this.state == "gold" && entity.type!="gold") {
 				this.dispose();
-			} else if (this.state == "bagfall" && entity.y>this.y) { // Bag to the face?
+			} else if (this.state == "bagfall" && entity.y>this.y && entity.type!="gold") { // Bag to the face?
 				entity.kill();
 			}
 		} else if (entity.type=="hobbin" && this.state=="bag") {
