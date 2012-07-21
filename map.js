@@ -75,7 +75,7 @@ Map.prototype = {
 		//if (entity.type == "digger") {
 		//	}
 		if ( entity.type != "digger" ) {
-			if ( this.getPositionValue(x, y) != 1 ) {
+			if ( this.getPositionValue(x, y) == 0 ) {
 				return true;
 			}
 		}

@@ -86,7 +86,7 @@ Gold.prototype = {
 		return this._map.getNormalizedEntityPosition(this);
 	},
 	collide: function(entity) {
-		if (entity.type=="digger") {
+		if (entity.type=="digger" || entity.type=="hobbin" ) {
 			var npDigger = entity.getNormalizedPosition();
 			var npEntity = this.getNormalizedPosition();
 

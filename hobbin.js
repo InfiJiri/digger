@@ -36,8 +36,8 @@ Hobbin.prototype = {
 	stime: 50,
 	direction: 0,
 	target:    null,
-	hspeed:    1,
-	vspeed:    1,
+	hspeed:    2.5,
+	vspeed:    2,
 	height:   34,
 	width:    34,
 
@@ -71,6 +71,9 @@ Hobbin.prototype = {
 	draw: function(context, interpolation) {
 		this.animate(context, interpolation);
 	},
+	getNormalizedPosition: function() {
+		return this._map.getNormalizedEntityPosition(this);
+	},
 	canEnterTile: function(x, y) {
 		return this._map.canEntityEnterTile(this, x, y);
 	},
@@ -87,12 +90,28 @@ Hobbin.prototype = {
 	  npDigger = digger.getNormalizedPosition();
 	  npHobbin = this._map.getNormalizedEntityPosition(this);
 
-	  if (this.target && (this.x!=this.target.x || this.y!=this.target.y) ) {
-		// Wait until destination reached.
-		  this.x += this.vx;
-		  this.y += this.vy;
+	  if (this.target) {
+		if ((this.vx>0 && this.x>=this.target.x) ||
+			(this.vx<0 && this.x<=this.target.x) ) {
+			this.vx = 0;
+			this.x  = this.target.x;
+
+			this.target = null;
+		} else if ((this.vy>0 && this.y>=this.target.y) ||
+			(this.vy<0 && this.y<=this.target.y) ) {
+			this.vy = 0;
+			this.y  = this.target.y;
+
+			this.target = null;
+		}
+
+
+		this.x += this.vx;
+		this.y += this.vy;		
+		
+		// Keep moving until destination reached.
 		return;
-	  }
+	  }	  
 
 		/* If we are here the monster needs to know which way to turn next. */
 
@@ -112,11 +131,11 @@ Hobbin.prototype = {
 		
 		if (Math.abs(npDigger.y-npHobbin.y)>Math.abs(npDigger.x-npHobbin.x)) {
 		  if (npDigger.y<npHobbin.y) {
-			mdirp1 = {x:0, y:1};   //UP;
-			mdirp4 = {x:0, y:-1}; //DOWN;
+			mdirp1 = {x:0, y:-1};   //UP;
+			mdirp4 = {x:0, y:1}; //DOWN;
 		  }	else {
-			mdirp1 = {x:0, y:-1}; //DOWN;
-			mdirp4 = {x:0, y:1};   //UP;
+			mdirp1 = {x:0, y:1}; //DOWN;
+			mdirp4 = {x:0, y:-1};   //UP;
 		  }
 
 		  if (npDigger.x<npHobbin.x) {
@@ -136,11 +155,11 @@ Hobbin.prototype = {
 		  }
 
 		  if (npDigger.y<npHobbin.y) {
-			mdirp2 = {x:0, y:1};   //UP;
-			mdirp3 = {x:0, y:-1}; //DOWN;
+			mdirp2 = {x:0, y:-1};   //UP;
+			mdirp3 = {x:0, y:1}; //DOWN;
 		  } else { 
-			mdirp2 = {x:0, y:-1}; //DOWN;
-			mdirp3 = {x:0, y:1};   //UP;
+			mdirp2 = {x:0, y:1}; //DOWN;
+			mdirp3 = {x:0, y:-1};   //UP;
 		  }
 		}
 
@@ -152,7 +171,7 @@ Hobbin.prototype = {
 
 		/* Adjust priorities so that monsters don't reverse direction unless they
 		   really have to */
-		dir = { x: digger.vx>0 ? -1 : 1, y: digger.vy>0 ? -1 : 1 }; // Reverse from digger.
+		/*dir = { x: digger.vx>0 ? -1 : 1, y: digger.vy>0 ? -1 : 1 }; // Reverse from digger.
 		
 		if (dir.x==mdirp1.x && dir.y==mdirp1.y) {
 		  mdirp1 = mdirp2;
@@ -170,7 +189,7 @@ Hobbin.prototype = {
 		if (dir.x==mdirp3.x && dir.y==mdirp3.y) {
 		  mdirp3 = mdirp4;
 		  mdirp4 = dir;
-		}
+		}*/
 
 		/* Introduce a randno element on levels <6 : occasionally swap p1 and p3 */
 		//if (digger.Main.randno(digger.Main.levof10()+5)==1 && digger.Main.levof10()<6) {
@@ -232,12 +251,11 @@ Hobbin.prototype = {
 	  //}
 
 	  /* (Draw new tunnels) and move monster */
+	  this.vy = this.vx = 0;
 	  if ( this.direction.x ) {
 		this.vx = this.hspeed * this.direction.x;
-		this.vy = 0;
 	  } else if (this.direction.y) {
 		this.vy = this.vspeed * this.direction.y;
-		this.vx = 0;
 	  }
 		
 	  /* Hobbins can eat emeralds */
