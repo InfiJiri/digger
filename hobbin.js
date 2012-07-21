@@ -34,7 +34,7 @@ Hobbin.prototype = {
 	x: 0,
 	y: 0,
 	stime: 50,
-	direction: 0,
+	direction: { x: 0, y: 0 },
 	target:    null,
 	hspeed:    2.5,
 	vspeed:    2,
@@ -171,8 +171,13 @@ Hobbin.prototype = {
 
 		/* Adjust priorities so that monsters don't reverse direction unless they
 		   really have to */
-		/*dir = { x: digger.vx>0 ? -1 : 1, y: digger.vy>0 ? -1 : 1 }; // Reverse from digger.
-		
+	   dir = this.direction;
+	   if (dir.x) { // What is the reverse direction of Hobbin?
+			dir = { x: this.direction.x>0 ? -1 : 1, y: 0 }; 
+	   } else if (dir.y) {
+			dir = { x: 0, y: this.direction.y>0 ? -1 : 1 }; 
+	   }
+
 		if (dir.x==mdirp1.x && dir.y==mdirp1.y) {
 		  mdirp1 = mdirp2;
 		  mdirp2 = mdirp3;
@@ -189,7 +194,7 @@ Hobbin.prototype = {
 		if (dir.x==mdirp3.x && dir.y==mdirp3.y) {
 		  mdirp3 = mdirp4;
 		  mdirp4 = dir;
-		}*/
+		}
 
 		/* Introduce a randno element on levels <6 : occasionally swap p1 and p3 */
 		//if (digger.Main.randno(digger.Main.levof10()+5)==1 && digger.Main.levof10()<6) {
