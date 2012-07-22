@@ -74,7 +74,11 @@ Map.prototype = {
 	canEntityEnterTile: function(entity, x, y) {
 		var result = false;
 
-		var np = this.getNormalizedEntityPosition(entity);
+		if (x>=this.getNumCols() || y>=this.getNumRows() || x<0 || y<0) {
+			return false;
+		}
+
+		var np = this.getNormalizedEntityPosition(entity);	
 		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) {
 			var original = this.getPositionValue(x, y);
 			var value    = original;
@@ -83,14 +87,14 @@ Map.prototype = {
 				return result;
 			}
 
-			if (np.y > y) { // Move to Top
-				result =  (value & 1) == 0;
-			} else if ( np.x < x ) { // Move to Right
-				result = (value & 2) == 0;
-			} else if (np.y < y) { // Move to Bottom
-				result = (value & 4) == 0;
-			} else if (np.x > x) { // Move to Left
+			if (np.y > y) { // Entering from bottom
+				result =  (value & 4) == 0;
+			} else if ( np.x < x ) { // Entering from left
 				result = (value & 8) == 0;
+			} else if (np.y < y) { // Entering from top
+				result = (value & 1) == 0;
+			} else if (np.x > x) { // Entering from right
+				result = (value & 2) == 0;
 			}
 		}
 
@@ -183,31 +187,13 @@ Map.prototype = {
 		}
 	},
 	update: function() {
-		for( var i=0; i<this.entities.length; i++ ) {
-			var entity = this.entities[i];
-
-			var np = this.getNormalizedEntityPosition(entity);
-
-			var value = this.getPositionValue(np.x, np.y);
-			
-			if (value > 0 && value <= 0x0F) {
-				if (entity.vx) {
-					value &= entity.vx > 0 ? 0x0F - 8 : 0x0F - 2; // Entering from left : right
-				} else if (entity.vy) {
-					value &= entity.vy > 0 ? 0x0F - 1 : 0x0F - 4; // Entering from above : bottom
-				}
-
-				this.setPositionValue(np.x, np.y, value);
-			}
-		}
-		
-		/*var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
 
 		
-		
+		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
+
 		var coord = normalizedPosition.y * this._numcols + normalizedPosition.x;
 		if (this._map[coord]!=S) { // Don't override spawn point
-			this._map[coord] = 0; // Update tunnels in map
-		}*/
+			//this._map[coord] = 0; // Update tunnels in map
+		}
 	}
 };

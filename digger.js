@@ -98,10 +98,22 @@ Digger.prototype = {
 			height: this._map.getNumRows() * this._map.getTileHeight()
 		};
 
+		var np = this.getNormalizedPosition();
 		if ( this.vx ) {
-			if ( this._map.isEntityInRow(this) ) {
+			if ( this._map.isEntityInRow(this) ) { // Exit / enter column
 				this.action = (this.vx>0) ? "moveright" : "moveleft";
 				this.x = Math.min(Math.max(0, this.x + this.vx), cd.width - this.width);
+
+				var x = this.vx > 0 ? np.x + 1 : np.x - 1;
+
+				var value = this._map.getPositionValue( x, np.y );
+			
+				if (value > 0 && value <= 0x0F) {
+					value &= this.vx > 0 ? 0x0F - 8 : 0x0F - 2; // Entering from left : right
+				}
+
+				debug(value);
+				this._map.setPositionValue(x, np.y, value);
 			} else if ( this.vy==0 ) { // Digger wants to move horizontaly, but is not in a row -> move to nearest row
 				var speed = (this.action=="movedown") ? this.speed : -this.speed;
 
@@ -110,9 +122,20 @@ Digger.prototype = {
 		}
 
 		if ( this.vy ) {
-			if (this._map.isEntityInColumn(this)) {
+			if (this._map.isEntityInColumn(this)) { // Exit / enter row
 				this.action = (this.vy>0) ? "movedown" : "moveup";
 				this.y = Math.min(Math.max(0, this.y + this.vy), cd.height - this.height);
+
+				var y = this.vy > 0 ? np.y + 1 : np.y - 1;
+
+				var value = this._map.getPositionValue( np.x, y );
+			
+				if (value > 0 && value <= 0x0F) {
+					value &= this.vy > 0 ? 0x0F - 1 : 0x0F - 4; // Entering from above : bottom
+				}
+
+				debug(value);
+				this._map.setPositionValue(np.x, y, value);
 			} else if (this.vx==0) { // Digger wants to move vertically, but is not in a column -> move to nearest column
 				var speed = (this.action=="moveright") ? this.speed : -this.speed;
 

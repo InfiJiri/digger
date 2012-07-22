@@ -41,6 +41,8 @@ Monster.prototype = {
 	vy: 0,
 	x: 0,
 	y: 0,
+	normx: 0,
+	normy: 0,	
 	hnt: 0,
 	stime: 50,
 	direction: { x: 0, y: 0 },
@@ -108,6 +110,13 @@ Monster.prototype = {
 	  npMonster = this._map.getNormalizedEntityPosition(this);
 
 	  if (this.target) {
+		if (this.stime!=0) {
+			/* If monster's just started, don't move yet */
+			//this.vx = this.vy = 0;
+			this.stime--;
+			return;
+		}
+
 		if ((this.vx>0 && this.x>=this.target.x) ||
 			(this.vx<0 && this.x<=this.target.x) ) {
 			this.vx = 0;
@@ -237,8 +246,8 @@ Monster.prototype = {
 			dir = null;
 			return;
 			debug("Monster.NEIN");
-		}
-
+		}		
+		
 		// FIXME calculate this without pixels
 		var targetX = (npMonster.x + dir.x) * this._map.getTileWidth();
 		var targetY = (npMonster.y + dir.y) * this._map.getTileHeight();
@@ -277,13 +286,6 @@ Monster.prototype = {
 		this.vx = 0;
 		this.vy = 0;
 	  }
-
-	  /* If monster's just started, don't move yet */
-	  //if (this.stime!=0) {
-	//	this.stime--;
-	//	this.vx = 0;
-	//	this.vy = 0;
-	 // }
 
 	  /* Increase time counter for monster */
 	  if (!this.isHobbin() && this.hnt<100) {
