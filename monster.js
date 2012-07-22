@@ -41,6 +41,7 @@ Monster.prototype = {
 	vy: 0,
 	x: 0,
 	y: 0,
+	hnt: 0,
 	stime: 50,
 	direction: { x: 0, y: 0 },
 	target:    null,
@@ -52,7 +53,9 @@ Monster.prototype = {
 	kill: function() {
 		alert("This kills the Monster");
 	},
-
+	isHobbin: function() {
+		return this.state == "hobbin";
+	},
 	animate: function(context, interpolation) {
 		this._timer.tick();
 
@@ -85,6 +88,12 @@ Monster.prototype = {
 	canEnterTile: function(x, y) {
 		return this._map.canEntityEnterTile(this, x, y);
 	},
+	collide: function(entity) {
+      this.t++; /* Time penalty */
+
+	  //checkcoincide(mon,clbits); /* Ensure both aren't moving in the same dir. */
+	  //incpenalties(clbits);
+	},
 	step: function() { // Taken from the java-port of Digger @ digger.org
 	  var dir;
 	  var mdirp1;
@@ -105,7 +114,9 @@ Monster.prototype = {
 			this.x  = this.target.x;
 
 			this.target = null;
-		} else if ((this.vy>0 && this.y>=this.target.y) ||
+		}
+
+		if ((this.vy>0 && this.y>=this.target.y) ||
 			(this.vy<0 && this.y<=this.target.y) ) {
 			this.vy = 0;
 			this.y  = this.target.y;
@@ -124,12 +135,10 @@ Monster.prototype = {
 		/* If we are here the monster needs to know which way to turn next. */
 
 		/* Turn monster back into nobbin if it's had its time */
-		//if (this.hnt>30+(digger.Main.levof10()<<1)) {
-		//  if (!this.nob) {
-		//	this.hnt=0;
-		//	this.nob=true;
-		//  }
-		//}
+		if (this.hnt>30 && this.isHobbin()) {
+			this.hnt   = 0;
+			this.state = "nobbin";
+		}
 
 		/* Set up monster direction properties to chase Digger */
 		var LEFT   = 4;
@@ -226,15 +235,20 @@ Monster.prototype = {
 			dir = mdirp4;
 	    } else {
 			dir = null;
+			return;
 			debug("Monster.NEIN");
 		}
 
-		this.target = {x: (npMonster.x + dir.x) * this._map.getTileWidth(), y: (npMonster.y + dir.y) * this._map.getTileHeight() };
+		// FIXME calculate this without pixels
+		var targetX = (npMonster.x + dir.x) * this._map.getTileWidth();
+		var targetY = (npMonster.y + dir.y) * this._map.getTileHeight();
+		
+		this.target = {x: targetX + this._map.getEntityOffsetWidth(this) , y: targetY + this._map.getEntityOffsetHeight(this) };
 
 		/* Monsters don't care about the field: they go where they want. */
-		//if (!this.nob) {
-		//  dir=mdirp1;
-		//}
+		if (this.isHobbin()) {
+		  dir = mdirp1;
+		}
 
 		/* Monsters take a time penalty for changing direction */
 		if (this.direction!=dir) {
@@ -243,25 +257,12 @@ Monster.prototype = {
 
 		/* Save the new direction */
 		this.direction = dir;
-	  //}
-
-	  /* If monster is about to go off edge of screen, stop it. */
-	  //if ((npMonster.x==292 && this.direction==0) ||
-	//	  (npMonster.x==12 && this.direction==4) ||
-		//  (npMonster.y==180 && this.direction==6) ||
-		 // (npMonster.y==18 && this.direction==2)) {
-		//this.direction = -1;
-	  //}
-
-	  /* Change hdir for monster */
-	  //if (this.direction==4 || this.direction==0) {
-	//	this.hdir=this.direction;
-	  //}
 
 	  /* Monsters digger */
-	  //if (!this.nob) {
-	//	digger.Drawing.eatfield(npMonster.x,npMonster.y,this.direction);
-	  //}
+		if (this.isHobbin()) {
+			// FIXME create tunnel
+			//	digger.Drawing.eatfield(npMonster.x,npMonster.y,this.direction);
+		}
 
 	  /* (Draw new tunnels) and move monster */
 	  this.vy = this.vx = 0;
@@ -270,11 +271,6 @@ Monster.prototype = {
 	  } else if (this.direction.y) {
 		this.vy = this.vspeed * this.direction.y;
 	  }
-		
-	  /* Monsters can eat emeralds */
-	  //if (!this.nob) {
-	//		digger.hitemerald((npMonster.x-12)/20,(npMonster.y-18)/18, (npMonster.x-12)%20,(npMonster.y-18)%18, this.direction);
-	  //}
 
 	  /* If digger's gone, don't bother */
 	  if (digger.action=="die") {
@@ -290,12 +286,12 @@ Monster.prototype = {
 	 // }
 
 	  /* Increase time counter for monster */
-	  //if (!this.nob && this.hnt<100) {
-	//	this.hnt++;
-	  //}
+	  if (!this.isHobbin() && this.hnt<100) {
+		this.hnt++;
+	  }
 
 	  //push = true;
-//	  digger.Main.incpenalty();
+	//	  digger.Main.incpenalty();
 
 	  /* Collision with another monster */
 	  //if ((clbits&0x3f00)!=0) {
@@ -335,22 +331,8 @@ Monster.prototype = {
 		//if ((this.direction==2 || this.direction==6) && this.nob)
 		  //this.direction=digger.reversedir(this.direction); /* If vertical, give up */
 	  //}
-
-	  /* Collision with digger */
-	  //if (((clbits&1)!=0) && digger.digonscr) {
-	//	if (digger.bonusmode) {
-		//  killmon(mon);
-		  //digger.Scores.scoreeatm();
-		  //digger.Sound.soundeatm(); /* Collision in bonus mode */
-		//} else {
-		  //digger.killdigger(3,0); /* Kill digger */
-		//}
-	 // }
-
-	  /* Update co-ordinates */
-	  //this.h  = (npMonster.x-12)/20;
-	  //this.v  = (npMonster.y-18)/18;
-	  //npMonster.xr = (npMonster.x-12)%20;
-	  //npMonster.yr = (npMonster.y-18)%18;
+	  
+	  
+	  // FIXME Bonus stuff
 	}
 }

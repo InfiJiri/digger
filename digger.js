@@ -128,6 +128,8 @@ Digger.prototype = {
 
 		var frame = animation.getSprite();
 
+		//debug("WH: " + this.x + " " + this.y);
+
 		context.drawImage(this._image,
 			frame.x,
 			frame.y,

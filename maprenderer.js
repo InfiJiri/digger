@@ -44,20 +44,31 @@ MapRenderer.prototype = {
 		this.updateTunnels();
 	},
 	updateTunnels: function() {
-		var digger = this._map.getDigger();
+		//var digger = this._map.getDigger();
+		for (var i=0; i<this._map.entities.length; i++) {
+			var entity = this._map.entities[i];
+			if (entity.type!="digger" && entity.type!="monster") { // Draw tunnels for Digger and Monsters
+				continue;
+			}
 
-		var normalizedPosition = this._map.getNormalizedEntityPosition(digger);
+			var normalizedPosition = this._map.getNormalizedEntityPosition(entity);
 
-		var tileWidth  = this._map.getTileWidth();
-		var tileHeight = this._map.getTileHeight();		
-		
-        this._context.beginPath();
-        this._context.arc(
-			digger.x - this._map.getEntityOffsetWidth(digger) + (tileWidth * 0.5),
-			digger.y - this._map.getEntityOffsetHeight(digger) + (tileHeight * 0.5),
-			tileWidth * 0.5, 0, 2 * Math.PI, false);
-        this._context.fillStyle = "#000000";
-        this._context.fill();
+			var tileWidth  = this._map.getTileWidth();
+			var tileHeight = this._map.getTileHeight();		
+			
+			var radius = this.getTunnelRadius();
+			
+			this._context.beginPath();
+			this._context.arc(
+				entity.x - this._map.getEntityOffsetWidth(entity) + (tileWidth * 0.5),
+				entity.y - this._map.getEntityOffsetHeight(entity) + (tileHeight * 0.5),
+				radius, 0, 2 * Math.PI, false);
+			this._context.fillStyle = "#000000";
+			this._context.fill();			
+		}
+	},
+	getTunnelRadius: function() {
+		return 0.5 * this._map.getTileWidth() - 2; // 1px on each side	
 	},
 	draw: function() {
 		debug("MapRenderer.draw");
@@ -74,12 +85,14 @@ MapRenderer.prototype = {
 				// Draws predefined tunnels
 				var tileWidth  = this._map.getTileWidth();
 				var tileHeight = this._map.getTileHeight();
+				
+				var radius = this.getTunnelRadius();			
 
 				var tunnelX = this.getXOffset() + x * tileWidth + (0.5 * tileWidth);
-				var tunnelY = this.getYOffset() + y * tileWidth + (0.5 * tileWidth)
+				var tunnelY = this.getYOffset() + y * tileHeight + (0.5 * tileHeight)
 				
 				this._context.beginPath();
-				this._context.arc(tunnelX, tunnelY, tileWidth * 0.5, 0, 2 * Math.PI, false);
+				this._context.arc(tunnelX, tunnelY, radius, 0, 2 * Math.PI, false);
 				this._context.fillStyle = "#000000";
 				this._context.fill();
 			}

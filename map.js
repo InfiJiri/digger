@@ -1,12 +1,12 @@
 // FIXME Global variables :'(
-var B = 3;	// Bonus
-var D = 4;	// Digger
-var E = 5;  // Emerald
-var G = 6;  // Gold
-//var H = 7;  // Hobbin
-//var N = 8;  // Nobbin
-var M = 7;  // Monster
-var S = 8;  // Spawm-point (monsters)
+var B = 0x10;  // Bonus
+var D = 0x20;  // Digger
+var E = 0x30;  // Emerald
+var G = 0x40;  // Gold
+var M = 0x50;  // Monster
+var S = 0x60;  // Spawn-point (monsters)
+var X = 0x0F;  // Untouched tile
+// 0 .. 15 define walls
 
 var Map = function(data) {
 	debug("Map.init");
@@ -14,15 +14,13 @@ var Map = function(data) {
 	// TODO load map
 	// TEST map
 	data = [
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 0, S, 1,
-		1,	1,	G,	1,	0,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
-		1,	1,	1,	1,	0,	1,	0,	0,	D,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
-		1,	1,	G,	G,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	1,	1,	1,	1, 1, 1, 0, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	0,	1,	1,	E,	E,	E,	0,	0,	0,	0, 0, 0, 0, 1, 1, 1,
-		1,	1,	1,	1,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1,	1,	1, 1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1,
-		1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1,	1, 1, 1, 1, 1, 1, 1 ];
+		X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,  
+		X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, S,
+		X,	X,	G,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, 0,
+		X,	X,	X,	X,	0,	X,	0,	0,	D,	X,	X,	E,	E,	E,	X,	X,	X,	X, X, X, 0,
+		X,	X,	G,	G,	X,	X,	X,	X,	0,	X,	X,	E,	E,	E,	X,	X,	X,	X, X, X, 0,
+		X,	X,	X,	X,	X,	X,	X,	X,	0,	X,	X,	E,	E,	E,	0,	0,	0,	0, 0, 0, 0,
+		X,	X,	X,	X,	0,	0,	0,	X,	0,	0,	0,	0,	0,	0,	0,	X,	X,	X, X, X, X  ];
 
 	// Store original map
 	this._start = data;
@@ -35,9 +33,9 @@ var Map = function(data) {
 };
 
 Map.prototype = {
-	_numcols: 24,
-	_tileWidth:  34,
-	_tileHeight: 34,
+	_numcols: 21,
+	_tileWidth:  40,
+	_tileHeight: 40,
 	_start:   [],
 	_map:     [],
 	_images:  {},
@@ -74,15 +72,29 @@ Map.prototype = {
 		return this._tileHeight;
 	},
 	canEntityEnterTile: function(entity, x, y) {
-		//if (entity.type == "digger") {
-		//	}
-		if ( entity.type != "digger" ) {
-			if ( this.getPositionValue(x, y) == 0 ) {
-				return true;
+		var result = false;
+
+		var np = this.getNormalizedEntityPosition(entity);
+		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) {
+			var original = this.getPositionValue(x, y);
+			var value    = original;
+
+			if (value > 0x0F) {
+				return result;
+			}
+
+			if (np.y > y) { // Move to Top
+				result =  (value & 1) == 0;
+			} else if ( np.x < x ) { // Move to Right
+				result = (value & 2) == 0;
+			} else if (np.y < y) { // Move to Bottom
+				result = (value & 4) == 0;
+			} else if (np.x > x) { // Move to Left
+				result = (value & 8) == 0;
 			}
 		}
 
-		return false;
+		return result;
 	},
 	isEntityTouching: function(entity1, entity2) {
 		var npEntity1 = this.getNormalizedEntityPosition(entity1);
@@ -119,6 +131,9 @@ Map.prototype = {
 	getPositionValue: function(x, y) {
 		return this._map[ y * this.getNumCols() + x ];
 	},
+	setPositionValue: function(x, y, value) {
+		return this._map[ y * this.getNumCols() + x ] = value;
+	},	
 	getNormalizedPosition: function(x, y) {
 		return { 
 			x: Math.floor(x / this._tileWidth), 
@@ -168,11 +183,31 @@ Map.prototype = {
 		}
 	},
 	update: function() {
-		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
+		for( var i=0; i<this.entities.length; i++ ) {
+			var entity = this.entities[i];
 
+			var np = this.getNormalizedEntityPosition(entity);
+
+			var value = this.getPositionValue(np.x, np.y);
+			
+			if (value > 0 && value <= 0x0F) {
+				if (entity.vx) {
+					value &= entity.vx > 0 ? 0x0F - 8 : 0x0F - 2; // Entering from left : right
+				} else if (entity.vy) {
+					value &= entity.vy > 0 ? 0x0F - 1 : 0x0F - 4; // Entering from above : bottom
+				}
+
+				this.setPositionValue(np.x, np.y, value);
+			}
+		}
+		
+		/*var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
+
+		
+		
 		var coord = normalizedPosition.y * this._numcols + normalizedPosition.x;
 		if (this._map[coord]!=S) { // Don't override spawn point
 			this._map[coord] = 0; // Update tunnels in map
-		}
+		}*/
 	}
 };

@@ -15,7 +15,7 @@ Emerald.prototype = {
 	width: 34,
 	height: 34,
 	collide: function(entity) {
-		if (entity.type=="digger" || entity.type=="hobbin") {
+		if (entity.type=="digger" || (entity.type=="monster" && entity.isHobbin()) ) {
 			this.dispose();
 		}
 	},	
