@@ -134,17 +134,17 @@ Map.prototype = {
 		return false;
 	},
 	getEntityOffsetWidth: function(entity) { // Entity tile-offset (when centered)
-		return ((this.getTileWidth() - entity.width) * 0.5);
+		return (this.getTileWidth() - entity.width) * 0.5;
 	},
 	getEntityOffsetHeight: function(entity) { // Entity tile-offset (when centered)
-		return ((this.getTileHeight() - entity.height) * 0.5);
+		return (this.getTileHeight() - entity.height) * 0.5;
 	},
 	getPositionValue: function(x, y) {
 		return this._map[ y * this.getNumCols() + x ];
 	},
 	setPositionValue: function(x, y, value) {
 		return this._map[ y * this.getNumCols() + x ] = value;
-	},	
+	},
 	getNormalizedPosition: function(x, y) {
 		return { 
 			x: Math.floor((x - this.getOffsetX()) / this.getTileWidth()), 

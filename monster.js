@@ -65,14 +65,14 @@ Monster.prototype = {
 		animation.animate(this._timer.getSeconds());
 
 		var frame = animation.getSprite();
-		
+
 		context.drawImage(this._image,
 			frame.x,
 			frame.y,
 			this.width,
 			this.height,
-			this.x + this.vx * interpolation,
-			this.y + this.vy * interpolation,
+			this.x + this.vx * interpolation, // Move this to 'update' or some other place that makes more sense
+			this.y + this.vy * interpolation, // Move this to 'update' or some other place that makes more sense
 			this.width,
 			this.height);
 	},
@@ -93,8 +93,11 @@ Monster.prototype = {
 	collide: function(entity) {
       this.t++; /* Time penalty */
 
-	  //checkcoincide(mon,clbits); /* Ensure both aren't moving in the same dir. */
-	  //incpenalties(clbits);
+	  /* Ensure both aren't moving in the same dir. */
+	  if (this.direction.x == entity.directionx && this.direction.y == entity.direction.y) {
+		entity.t++;
+		this.t++;
+	  }
 	},
 	step: function() { // Taken from the java-port of Digger @ digger.org
 	  var dir;
@@ -102,7 +105,6 @@ Monster.prototype = {
 	  var mdirp2;
 	  var mdirp3;
 	  var mdirp4;
-	  var t;
 	  var push;
 
 	  var digger = this._map.getDigger();
@@ -249,10 +251,10 @@ Monster.prototype = {
 		}		
 		
 		// FIXME calculate this without pixels
-		var targetX = (npMonster.x + dir.x) * this._map.getTileWidth();
-		var targetY = (npMonster.y + dir.y) * this._map.getTileHeight();
+		var targetX = (npMonster.x + dir.x) * this._map.getTileWidth() ;
+		var targetY = (npMonster.y + dir.y) * this._map.getTileHeight() ;
 		
-		this.target = {x: targetX + this._map.getEntityOffsetWidth(this) , y: targetY + this._map.getEntityOffsetHeight(this) };
+		this.target = {x: targetX + this._map.getEntityOffsetWidth(this) + this._map.getOffsetX() , y: targetY + this._map.getEntityOffsetHeight(this) + this._map.getOffsetY() };
 
 		/* Monsters don't care about the field: they go where they want. */
 		if (this.isHobbin()) {
