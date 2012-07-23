@@ -34,18 +34,19 @@ var Map = function(data) {
 
 Map.prototype = {
 	_numcols: 21,
+	_offset: { x: 0, y: 25 },
 	_tileWidth:  40,
 	_tileHeight: 40,
 	_start:   [],
 	_map:     [],
 	_images:  {},
-	_digger: null,
+	_digger:  null,
 	entities: [],
 	isEntityInRow: function(entity) {
-		return (entity.y - this.getEntityOffsetHeight(entity)) % this._tileHeight == 0;
+		return (entity.y - this.getOffsetY() - this.getEntityOffsetHeight(entity)) % this._tileHeight == 0;
 	},
 	isEntityInColumn: function(entity) {
-		return (entity.x - this.getEntityOffsetWidth(entity)) % this._tileWidth == 0;
+		return (entity.x - this.getOffsetX() - this.getEntityOffsetWidth(entity)) % this._tileWidth == 0;
 	},
 	isEntityCentered: function( entity ) {
 		//return this.isEntityInRow(entity) && this.isEntityInColumn(entity);
@@ -64,6 +65,12 @@ Map.prototype = {
 	},
 	getNumRows: function() {
 		return this._map.length / this._numcols;
+	},	
+	getOffsetX: function() {
+		return this._offset.x;
+	},
+	getOffsetY: function() {
+		return this._offset.y;
 	},
 	getTileWidth: function() {
 		return this._tileWidth;
@@ -126,11 +133,11 @@ Map.prototype = {
 
 		return false;
 	},
-	getEntityOffsetWidth: function(entity) {
-		return ((this._tileWidth - entity.width) * 0.5);
+	getEntityOffsetWidth: function(entity) { // Entity tile-offset (when centered)
+		return ((this.getTileWidth() - entity.width) * 0.5);
 	},
-	getEntityOffsetHeight: function(entity) {
-		return ((this._tileHeight - entity.height) * 0.5);
+	getEntityOffsetHeight: function(entity) { // Entity tile-offset (when centered)
+		return ((this.getTileHeight() - entity.height) * 0.5);
 	},
 	getPositionValue: function(x, y) {
 		return this._map[ y * this.getNumCols() + x ];
@@ -140,8 +147,8 @@ Map.prototype = {
 	},	
 	getNormalizedPosition: function(x, y) {
 		return { 
-			x: Math.floor(x / this._tileWidth), 
-			y: Math.floor(y / this._tileHeight) 
+			x: Math.floor((x - this.getOffsetX()) / this.getTileWidth()), 
+			y: Math.floor((y - this.getOffsetY()) / this.getTileHeight()) 
 		}	
 	},
 	getNormalizedEntityPosition: function(entity){ // Where's the center+middle of this entity?
@@ -165,9 +172,6 @@ Map.prototype = {
 					case G: // Gold
 						o = new Gold(this);
 						break;
-					case M: // Monster
-						o = new Hobbin(this);
-						break;
 					case D: // Digger
 						var o = new Digger(this);
 						this._digger = o; // Store reference to array-object
@@ -180,20 +184,18 @@ Map.prototype = {
 				}
 
 				// Place object on map.
-				o.x = x * this._tileWidth + this.getEntityOffsetWidth(o);
-				o.y = y * this._tileHeight + this.getEntityOffsetHeight(o);	
+				o.x = this.getOffsetX() + x * this.getTileWidth() + this.getEntityOffsetWidth(o);
+				o.y = this.getOffsetY() + y * this.getTileHeight() + this.getEntityOffsetHeight(o);	
 				this.entities.push(o);
 			}
 		}
 	},
 	update: function() {
-
-		
 		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
 
-		var coord = normalizedPosition.y * this._numcols + normalizedPosition.x;
+		var coord = normalizedPosition.y * this.getNumCols() + normalizedPosition.x;
 		if (this._map[coord]!=S) { // Don't override spawn point
-			//this._map[coord] = 0; // Update tunnels in map
+			this._map[coord] = 0; // Update tunnels in map
 		}
 	}
 };

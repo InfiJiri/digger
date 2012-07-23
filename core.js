@@ -156,7 +156,7 @@ Core.prototype = {
 
 			for( var j=0; j<this._map.entities.length; j++ ) {
 				var entity2 = this._map.entities[j];
-				if (j==i || entity1.isdisposed) { // Don't detect collision with self, and don't collide entities that aren't part of the game anymore
+				if (j==i || entity2.isdisposed) { // Don't detect collision with self, and don't collide entities that aren't part of the game anymore
 					continue;
 				}
 				

@@ -92,17 +92,18 @@ Digger.prototype = {
 		this.vx = this.vy = 0;
 	},
 	update: function() {
-		//cd = this._map.getCanvasDimensions();
 		var cd = {
 			width: this._map.getNumCols() * this._map.getTileWidth(),
 			height: this._map.getNumRows() * this._map.getTileHeight()
 		};
 
+		// FIXME Offset calculation duplicate code
+		
 		var np = this.getNormalizedPosition();
 		if ( this.vx ) {
 			if ( this._map.isEntityInRow(this) ) { // Exit / enter column
 				this.action = (this.vx>0) ? "moveright" : "moveleft";
-				this.x = Math.min(Math.max(0, this.x + this.vx), cd.width - this.width);
+				this.x = Math.min(Math.max(this._map.getOffsetX() + this._map.getEntityOffsetWidth(this), this.x + this.vx), this._map.getOffsetX() + cd.width - this.width - this._map.getEntityOffsetWidth(this));
 
 				var x = this.vx > 0 ? np.x + 1 : np.x - 1;
 
@@ -112,19 +113,19 @@ Digger.prototype = {
 					value &= this.vx > 0 ? 0x0F - 8 : 0x0F - 2; // Entering from left : right
 				}
 
-				debug(value);
 				this._map.setPositionValue(x, np.y, value);
 			} else if ( this.vy==0 ) { // Digger wants to move horizontaly, but is not in a row -> move to nearest row
 				var speed = (this.action=="movedown") ? this.speed : -this.speed;
 
-				this.y = Math.min(Math.max(0, this.y + speed), cd.height - this.height);
+				this.y = Math.min(Math.max(this._map.getOffsetY() + this._map.getEntityOffsetHeight(this), this.y + speed), this._map.getOffsetY() + cd.height - this.height - this._map.getEntityOffsetHeight(this));
 			}
 		}
 
 		if ( this.vy ) {
 			if (this._map.isEntityInColumn(this)) { // Exit / enter row
 				this.action = (this.vy>0) ? "movedown" : "moveup";
-				this.y = Math.min(Math.max(0, this.y + this.vy), cd.height - this.height);
+				this.y = Math.min(Math.max(this._map.getOffsetY() + this._map.getEntityOffsetHeight(this), this.y + this.vy), this._map.getOffsetY() + cd.height - this.height - this._map.getEntityOffsetHeight(this));
+				 debug(this._map.getOffsetY() + cd.height - this.height - this._map.getEntityOffsetHeight(this) + " " + this._map.getOffsetY() + " " + cd.height + " " + this.height + " " +  this._map.getEntityOffsetHeight(this));
 
 				var y = this.vy > 0 ? np.y + 1 : np.y - 1;
 
@@ -134,12 +135,11 @@ Digger.prototype = {
 					value &= this.vy > 0 ? 0x0F - 1 : 0x0F - 4; // Entering from above : bottom
 				}
 
-				debug(value);
-				this._map.setPositionValue(np.x, y, value);
+				//this._map.setPositionValue(np.x, y, value);
 			} else if (this.vx==0) { // Digger wants to move vertically, but is not in a column -> move to nearest column
 				var speed = (this.action=="moveright") ? this.speed : -this.speed;
 
-				this.x = Math.min(Math.max(0, this.x + speed), cd.width - this.width);
+				this.x = Math.min(Math.max(this._map.getOffsetX() + this._map.getEntityOffsetWidth(this), this.x + speed), this._map.getOffsetX() + cd.width - this.width - this._map.getEntityOffsetWidth(this));
 			}
 		}	
 	},
@@ -158,8 +158,8 @@ Digger.prototype = {
 			frame.y,
 			this.width,
 			this.height,
-			this.x + this.vx * interpolation,
-			this.y + this.vy * interpolation,
+			this.x + this.vx * interpolation, // Move this to 'update' or some other place that makes more sense
+			this.y + this.vy * interpolation, // Move this to 'update' or some other place that makes more sense
 			this.width,
 			this.height);
 	},

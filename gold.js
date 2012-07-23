@@ -66,7 +66,8 @@ Gold.prototype = {
 
 		var tileHeight = this._map.getTileHeight();
 		var tileWidth  = this._map.getTileWidth();
-		this.target = {x:tileWidth * x, y:tileHeight * y};
+		this.target = {x:tileWidth * x  + this._map.getOffsetX() +  this._map.getEntityOffsetWidth(this),
+			y:tileHeight * y + this._map.getOffsetY() + this._map.getEntityOffsetHeight(this) };
 	},
 	moveHorizontal: function(pusherEntity, x) {
 		var np = this._map.getNormalizedEntityPosition(this);
@@ -79,34 +80,40 @@ Gold.prototype = {
 		var tileHeight = this._map.getTileHeight();
 		var tileWidth  = this._map.getTileWidth();
 
-		this.vx     = pusherEntity.vx * 2; // Bump bag ahead.
-		this.target = {x:tileWidth * x, y:tileHeight * np.y};
+		this.vx        = pusherEntity.vx * 2; // Bump bag ahead.
+
+		this.moveToField( x, np.y );
 	},
 	getNormalizedPosition: function() {
 		return this._map.getNormalizedEntityPosition(this);
 	},
 	collide: function(entity) {
 		if (entity.type=="digger" || entity.type=="monster" || entity.type=="gold" ) {
-			var npDigger = entity.getNormalizedPosition();
-			var npEntity = this.getNormalizedPosition();
+			var npEntity = entity.getNormalizedPosition();
+			var npGold = this.getNormalizedPosition();
 
-			if ( npDigger.y != npEntity.y ) {
+			if ( npEntity.y != npGold.y ) {
 				dy      = entity.vy >0 ? -entity.speed : entity.speed;
 				entity.y += dy;
 				entity.vy = 0;
 			}			
 
 			if (this.state == "bag") {
-				if ( npDigger.y == npEntity.y ) {
+				if ( npEntity.y == npGold.y ) {
 					// Pushing bag
-					var x = npDigger.x;
+					var x = npEntity.x;
 					if (entity.vx<0) {
-						x = npDigger.x - 1;
+						x = npEntity.x - 1;
 					} else if (entity.vx>0) {
-						x = npDigger.x + 1
+						x = npEntity.x + 1
 					}
 
-					this.moveHorizontal(entity, x);
+					if ( entity.type == "digger" || entity.type=="monster" ) {
+						this.moveHorizontal(entity, x);
+					} else if ( (npEntity.x<npGold.x && this.vx<0) ||
+						(npEntity.x>npGold.x && this.vx>0) ) { // Is the entity being pushed, or is the entity pushing?
+						this.moveHorizontal(entity, x);
+					}
 				}
 			} else if (this.state == "gold" && entity.type!="gold") {
 				this.dispose();
@@ -119,8 +126,9 @@ Gold.prototype = {
 	},	
 	fall: function(fallImmediately) { // fallImmediately -> don't shake
 		if (
+			this.state == "gold" || (
 			this.state == "shake" &&
-			this._fallDelay >= (new Date).getTime() - this._fallStart ) { 
+			this._fallDelay >= (new Date).getTime() - this._fallStart )) { 
 
 			// Wait for it
 				
@@ -147,6 +155,7 @@ Gold.prototype = {
 			
 			this.moveToField( np.x, nextRow );
 		} else if ( this.target && this.y >= this.target.y ) { // Target defined, and no empty row under bag -> stop?
+			debug("okdone");
 			this.vx = this.vy = 0;
 			this.y  = this.target.y;
 

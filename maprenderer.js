@@ -88,8 +88,8 @@ MapRenderer.prototype = {
 				
 				var radius = this.getTunnelRadius();			
 
-				var tunnelX = this.getXOffset() + x * tileWidth + (0.5 * tileWidth);
-				var tunnelY = this.getYOffset() + y * tileHeight + (0.5 * tileHeight)
+				var tunnelX = this._map.getOffsetX() + x * tileWidth + (0.5 * tileWidth);
+				var tunnelY = this._map.getOffsetY() + y * tileHeight + (0.5 * tileHeight)
 				
 				this._context.beginPath();
 				this._context.arc(tunnelX, tunnelY, radius, 0, 2 * Math.PI, false);
