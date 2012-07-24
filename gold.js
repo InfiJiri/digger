@@ -60,14 +60,8 @@ Gold.prototype = {
 	isMoving: function() {
 		return this.target!==null;
 	},
-
 	moveToField: function(x, y) {
-		var np = this._map.getNormalizedEntityPosition(this);
-
-		var tileHeight = this._map.getTileHeight();
-		var tileWidth  = this._map.getTileWidth();
-		this.target = {x:tileWidth * x  + this._map.getOffsetX() +  this._map.getEntityOffsetWidth(this),
-			y:tileHeight * y + this._map.getOffsetY() + this._map.getEntityOffsetHeight(this) };
+		this._map.moveEntityToField(this, x, y);
 	},
 	moveHorizontal: function(pusherEntity, x) {
 		var np = this._map.getNormalizedEntityPosition(this);

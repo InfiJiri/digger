@@ -78,35 +78,6 @@ Map.prototype = {
 	getTileHeight: function() {
 		return this._tileHeight;
 	},
-	canEntityEnterTile: function(entity, x, y) {
-		var result = false;
-
-		if (x>=this.getNumCols() || y>=this.getNumRows() || x<0 || y<0) {
-			return false;
-		}
-
-		var np = this.getNormalizedEntityPosition(entity);	
-		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) {
-			var original = this.getPositionValue(x, y);
-			var value    = original;
-
-			if (value > 0x0F) {
-				return result;
-			}
-
-			if (np.y > y) { // Entering from bottom
-				result =  (value & 4) == 0;
-			} else if ( np.x < x ) { // Entering from left
-				result = (value & 8) == 0;
-			} else if (np.y < y) { // Entering from top
-				result = (value & 1) == 0;
-			} else if (np.x > x) { // Entering from right
-				result = (value & 2) == 0;
-			}
-		}
-
-		return result;
-	},
 	isEntityTouching: function(entity1, entity2) {
 		var npEntity1 = this.getNormalizedEntityPosition(entity1);
 		var npEntity2 = this.getNormalizedEntityPosition(entity2);
@@ -157,6 +128,15 @@ Map.prototype = {
 
 		return this.getNormalizedPosition(x , y);
 	},
+	moveEntityToField: function(entity, x, y) {
+		var np = this.getNormalizedEntityPosition(entity);
+
+		var tileHeight = this.getTileHeight();
+		var tileWidth  = this.getTileWidth();
+
+		entity.target = {x:tileWidth * x  + this.getOffsetX() +  this.getEntityOffsetWidth(entity),
+			y:tileHeight * y + this.getOffsetY() + this.getEntityOffsetHeight(entity) };
+	},
 	reset: function() {	
 		this.entities = [];
 
@@ -190,12 +170,97 @@ Map.prototype = {
 			}
 		}
 	},
-	update: function() {
-		var normalizedPosition = this.getNormalizedEntityPosition(this._digger);
+	canEntityEnterTile: function(entity, x, y) {
+		var result = false;
 
-		var coord = normalizedPosition.y * this.getNumCols() + normalizedPosition.x;
-		if (this._map[coord]!=S) { // Don't override spawn point
-			this._map[coord] = 0; // Update tunnels in map
+		if (x>=this.getNumCols() || y>=this.getNumRows() || x<0 || y<0) {
+			return false;
 		}
+
+		var np = this.getNormalizedEntityPosition(entity);	
+		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) {
+			var original = this.getPositionValue(x, y);
+			var value    = original;
+
+			if (value > 0x0F) {
+				return result;
+			}
+
+			if (np.y > y) { // Entering from bottom
+				result =  (value & 4) == 0;
+			} else if ( np.x < x ) { // Entering from left
+				result = (value & 8) == 0;
+			} else if (np.y < y) { // Entering from top
+				result = (value & 1) == 0;
+			} else if (np.x > x) { // Entering from right
+				result = (value & 2) == 0;
+			}
+		}
+
+		return result;
+	},	
+	updateTunnel: function() {
+		for( var i=0; i<this.entities.length; i++ ) {
+			var entity = this.entities[i];
+			if (entity.type != "digger" && entity.type!="monster") {
+				continue;
+			}
+
+			var np    = this.getNormalizedEntityPosition(entity);
+
+			var coord = np.y * this.getNumCols() + np.x;
+
+			if ( entity.vx > 0 ) {
+				this._map[ coord ] &= (0x0F - 2);
+				
+				if ( coord + 1 < this.getNumCols() ) {
+					this._map[ coord + 1 ] &= (0x0F - 8);
+				}
+			} else if (entity.vx < 0) {
+				this._map[ coord ] &= (0x0F - 8);
+				
+				if ( coord - 1 > (np.y * this.getNumCols()) ) {
+					this._map[ coord - 1 ] = this._map[ coord - 1] & (0x0F - 2);
+				}
+			} else if (entity.vy > 0) {
+				this._map[ coord ] &= (0x0F - 4);
+				
+				if ( coord + this.getNumCols() < this._map.length ) {
+					this._map[ coord + this.getNumCols() ] &= (0x0F - 1);	
+				}
+			} else if (entity.vy < 0) {
+				this._map[ coord ] &= (0x0F - 1);
+				
+				if ( coord - this.getNumCols() > 0) {
+					this._map[ coord - this.getNumCols() ] &= (0x0F - 4);
+				}
+			}
+
+			debug(this._map[coord]);
+		}
+	},
+	update: function() {
+		// Update tunnels in map
+		//for( var i=0; i<this.entities.length; i++ ) {
+			//var entity = this.entities[i];
+
+			var normalizedPosition = this.getNormalizedEntityPosition(this.getDigger());
+
+			var coord = normalizedPosition.y * this.getNumCols() + normalizedPosition.x;
+			//this._map[coord] = 0; // Update tunnels in map
+
+			this.updateTunnel();
+
+			//this.entityReachedDestination(entity);
+/*				if (this._map[coord]==E) { // Don't override spawn point
+					this._map[coord] = 0; 
+				} else if (this._map[coord]<0x0F) {
+					//if (this._
+					this._map[coord] |= 0; // Update tunnels in map
+				}*/
+			//}
+			
+
+		//}
 	}
 };

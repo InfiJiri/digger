@@ -99,6 +99,9 @@ Monster.prototype = {
 		this.t++;
 	  }
 	},
+	moveToField: function(x, y) {
+		this._map.moveEntityToField(this, x, y);
+	},	
 	step: function() { // Taken from the java-port of Digger @ digger.org
 	  var dir;
 	  var mdirp1;
@@ -253,8 +256,10 @@ Monster.prototype = {
 		// FIXME calculate this without pixels
 		var targetX = (npMonster.x + dir.x) * this._map.getTileWidth() ;
 		var targetY = (npMonster.y + dir.y) * this._map.getTileHeight() ;
-		
-		this.target = {x: targetX + this._map.getEntityOffsetWidth(this) + this._map.getOffsetX() , y: targetY + this._map.getEntityOffsetHeight(this) + this._map.getOffsetY() };
+
+		/*this.target = {x: targetX + this._map.getEntityOffsetWidth(this) + this._map.getOffsetX(), 
+			y: targetY + this._map.getEntityOffsetHeight(this) + this._map.getOffsetY() };*/
+		this.moveToField(npMonster.x + dir.x, npMonster.y + dir.y);
 
 		/* Monsters don't care about the field: they go where they want. */
 		if (this.isHobbin()) {
