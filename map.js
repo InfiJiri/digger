@@ -73,7 +73,7 @@ Map.prototype = {
 	getTileHeight: function() {
 		return this._tileHeight;
 	},
-	getEmeraldCount: function() {
+	getEmeraldCount: function() { // Returns all non-disposed emeralds in the game
 		var cnt = 0;
 		for( var i=0; i<this.entities.length; i++ ) {
 			var entity = this.entities[i];
@@ -110,6 +110,39 @@ Map.prototype = {
 		}
 
 		return false;
+	},
+	isEntityEnteringTile: function(entity, x, y) { // Is entity over 25% of the tile (i.e. does its value require updating?)
+		var npEntity = this.getNormalizedEntityPosition(entity);
+
+		// Due to Entity.speed > 1, not all (pixel) positions in the map
+		// can be reached.
+		var npEntityCenter = entity.x + (entity.width * 0.5);
+		var npEntityMiddle = entity.y + (entity.height * 0.5);
+		var npTileCenter   = x * this.getTileWidth() + (this.getTileWidth() * 0.5) + this.getOffsetX();
+		var npTileMiddle   = y * this.getTileHeight() + (this.getTileHeight() * 0.5) + this.getOffsetY();
+		var minX      = npTileCenter - (0.25 * this.getTileWidth());
+		var maxX      = npTileCenter + (0.25 * this.getTileWidth());
+		var minY      = npTileMiddle - (0.25 * this.getTileHeight());
+		var maxY      = npTileMiddle + (0.25 * this.getTileHeight());
+
+		var x1 = entity.x;
+		var x2 = entity.x + entity.width;
+		var y1 = entity.y;
+		var y2 = entity.y + entity.height;
+
+		if (npEntity.y == y && entity.vx > 0) {
+			return (x2 > minX && x2 < maxX);
+		} else if (npEntity.y == y && entity.vx<0) {
+			return (x1 > minX && x1 < maxX);
+		} else if  ( ( y == npEntity.y+1 || y == npEntity.y-1 ) && npEntity.x == x ) {
+			if (entity.vy>0) {
+				return (y2 > minY && y2 < maxY);
+			} else if (entity.vy<0) {
+				return (y1 > minY && y1 < maxY);
+			}
+		}
+
+		return false;	
 	},
 	getEntityOffsetWidth: function(entity) { // Entity tile-offset (when centered)
 		return (this.getTileWidth() - entity.width) * 0.5;
@@ -208,7 +241,6 @@ Map.prototype = {
 				result = (value & 2) == 0;
 			}
 
-			//debug(x + " " + y + " " + result);
 			return result;
 		}
 
@@ -222,44 +254,37 @@ Map.prototype = {
 			// they are the only tunnel making entities. Also, if
 			if (entity.type != "digger" && !(entity.type=="monster" && entity.isHobbin()) ) {
 				continue;
-			}		
-			
+			}
+
 			var np    = this.getNormalizedEntityPosition(entity);
 
 			var coord = np.y * this.getNumCols() + np.x;
 
-			if ( entity.vx > 0 ) { // Entering from left.
+			if ( entity.vx > 0) { // Entering from left.
 				this._map[ coord ] &= (0x0F - 2); // Open right side of current tile
-				
-				if ( coord + 1 < this.getNumCols() ) { // Not on most right tile?
+
+				if ( coord + 1 < this.getNumCols() && this.isEntityEnteringTile(entity, np.x + 1, np.y) ) { // Not on most right tile, and is entering?
 					this._map[ coord + 1 ] &= (0x0F - 8); // Open left side of target tile
 				}
 			} else if (entity.vx < 0) { // Entering from right.
 				this._map[ coord ] &= (0x0F - 8);  // Open left side of current tile
 				
-				if ( coord - 1 > (np.y * this.getNumCols()) ) { // Not on most left tile?
+				if ( coord - 1 > (np.y * this.getNumCols()) && this.isEntityEnteringTile(entity, np.x - 1, np.y)  ) { // Not on most left tile?
 					this._map[ coord - 1 ] &= (0x0F - 2); // Open right side of target tile
 				}
 			} else if (entity.vy > 0) {
 				this._map[ coord ] &= (0x0F - 4);
 				
-				if ( coord + this.getNumCols() < this._map.length ) {
+				if ( coord + this.getNumCols() < this._map.length && this.isEntityEnteringTile(entity, np.x, np.y + 1)  ) {
 					this._map[ coord + this.getNumCols() ] &= (0x0F - 1);	
 				}
 			} else if (entity.vy < 0) {
 				this._map[ coord ] &= (0x0F - 1);
 
-				if ( coord - this.getNumCols() > 0) {
+				if ( coord - this.getNumCols() > 0 && this.isEntityEnteringTile(entity, np.x, np.y - 1)) {
 					this._map[ coord - this.getNumCols() ] &= (0x0F - 4);
 				}
 			}
-
-			//if (entity.type=="monster" && this._map[coord]!=0) {
-				if (np.x == Math.floor(this.getNumCols() * 0.5) + 2) {
-					debug("B: " + this._map[coord]);
-				}
-				
-		//	}
 		}
 	},
 	update: function() {

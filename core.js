@@ -22,28 +22,40 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 			return;
 		}
 
+		
+		// direction
+		// 0 = neutral
+		// 1 = up
+		// 2 = right
+		// 4 = down
+		// 8 = left
+		
 		switch( e.keyCode ) {
 			case 32: // SPACE
 				self.togglePause();
 				break;
 			case 65:
 			case 37: // LEFT
+				digger.direction = 8;
 				digger.vx = -digger.speed;
 
 				break;
 			case 87:
 			case 38: // UP
 				digger.vy = -digger.speed;
+				digger.direction = 1;
 
 				break;
 			case 68:
 			case 39: // RIGHT
 				digger.vx = digger.speed;
+				digger.direction = 2;
 
 				break;
 			case 83:
 			case 40: // DOWN
 				digger.vy = digger.speed;
+				digger.direction = 4;
 
 				break;
 		}
@@ -56,14 +68,16 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 			case 68:
 			case 37: // LEFT
 			case 39: // RIGHT
-				digger.vx = 0;
+				digger.vx        = 0;
+				digger.direction = 0;
 				
 				break;
 			case 87:
 			case 83:
 			case 38: // UP
 			case 40: // DOWN
-				digger.vy = 0;
+				digger.vy        = 0;
+				digger.direction = 0;
 				break;
 		}
 	};
