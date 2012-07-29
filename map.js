@@ -263,7 +263,7 @@ Map.prototype = {
 			if ( entity.vx > 0) { // Entering from left.
 				this._map[ coord ] &= (0x0F - 2); // Open right side of current tile
 
-				if ( coord + 1 < this.getNumCols() && this.isEntityEnteringTile(entity, np.x + 1, np.y) ) { // Not on most right tile, and is entering?
+				if ( coord + 1 < (this.getNumCols() * np.y + this.getNumCols()) && this.isEntityEnteringTile(entity, np.x + 1, np.y) ) { // Not on most right tile, and is entering?
 					this._map[ coord + 1 ] &= (0x0F - 8); // Open left side of target tile
 				}
 			} else if (entity.vx < 0) { // Entering from right.

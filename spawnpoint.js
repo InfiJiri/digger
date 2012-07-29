@@ -15,7 +15,7 @@ SpawnPoint.prototype = {
 	_timerStart: 0,
 	update: function() {
 		if (this._timerStart == 0 || this.delay < (new Date).getTime() - this._timerStart) {
-			if (this.monsterCount < 1) {
+			if (this.monsterCount < 2) {
 				var m = new Monster(this._map);
 				m.x = this.x;
 				m.y = this.y;

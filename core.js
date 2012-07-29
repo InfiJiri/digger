@@ -31,6 +31,9 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 		// 8 = left
 		
 		switch( e.keyCode ) {
+			case 90: // Z
+				Debug.enabled = !Debug.enabled;
+				break;
 			case 32: // SPACE
 				self.togglePause();
 				break;
@@ -215,6 +218,12 @@ Core.prototype = {
 			if (entity.draw) {
 				entity.draw(this._context, interpolation);
 			}
+		}
+
+		
+		// Debug -> move to debug
+		if (!Debug.enabled) {
+			return;
 		}
 
 		for( var i=0; i < this._map._map.length; i++ ) {

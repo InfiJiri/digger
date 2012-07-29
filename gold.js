@@ -135,7 +135,7 @@ Gold.prototype = {
 		var nextRow   = np.y + 1;
 		var index     = (nextRow * this._map.getNumCols()) + np.x; // Row + col below bag
 
-		if( this._map.getMapData()[ index ] == 0 && index<this._map.getMapData().length ) { // Row below bag is empty?
+		if( index<this._map.getMapData().length && this.isEmptyField(index) ) { // Top of row below is open (i.e. row below bag is empty)?
 			if (!fallImmediately && this.state == "bag") { // Initiate delayed fall
 				this.state = "shake";
 
@@ -160,6 +160,11 @@ Gold.prototype = {
 				this.target = null;
 			}
 		}
+	},
+	isEmptyField: function(index) {
+		var map = this._map.getMapData();
+		
+		return ((map[ index ] & 8) == 0) || ((map[ index ] & 2) == 0)|| ((map[ index ] & 1) == 0);
 	},
 	update: function() {
 		if (this.isdisposed) { // Object is not part of the game anymore

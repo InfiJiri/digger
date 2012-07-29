@@ -35,22 +35,23 @@ var Monster = function(map) {
 
 Monster.prototype = {
 	_animations: {},
-	type: "monster",
-	state: "nobbin",
-	vx: 0,
-	vy: 0,
-	x: 0,
-	y: 0,
-	normx: 0,
-	normy: 0,	
-	hnt: 0,
-	stime: 50,
-	direction: { x: 0, y: 0 },
-	target:    null,
-	hspeed:    2.5,
-	vspeed:    2,
-	height:   34,
-	width:    34,
+	type:        "monster",
+	state:       "nobbin",
+	vx:          0,
+	vy:          0,
+	x:           0,
+	y:           0,
+	normx:       0,
+	normy:       0,	
+	hnt:         0,
+	stime:      50,
+	penalty:     0,
+	direction:   { x: 0, y: 0 },
+	target:      null,
+	hspeed:      2.5,
+	vspeed:      2,
+	height:      34,
+	width:       34,
 
 	kill: function() {
 		alert("This kills the Monster");
@@ -91,12 +92,35 @@ Monster.prototype = {
 		return this._map.canEntityEnterTile(this, x, y);
 	},
 	collide: function(entity) {
-      this.t++; /* Time penalty */
+	  if (entity.type=="monster") {
+		var value = 0;
+		 if ( this.direction.x && this.x>entity.x) { // Horizontal collision
+		   value = entity.direction.x>0 && this.direction.x<0 ? -1 : 1;	 // Facing eachother : moving away
 
-	  /* Ensure both aren't moving in the same dir. */
-	  if (this.direction.x == entity.directionx && this.direction.y == entity.direction.y) {
-		entity.t++;
-		this.t++;
+		   this.direction.x   *= value;
+		   entity.direction.x *= value;
+		 } else if ( this.direction.x && this.x<entity.x ) {
+		   value = this.direction.x>0 && entity.direction.x<0 ? -1 : 1;	 // Facing eachother : moving away		 
+
+		   this.direction.x   *= value;
+		   entity.direction.x *= value;
+		 } else if ( this.direction.y && this.y>entity.y ) { // Vertical collision
+		    value = entity.direction.y>0 && this.direction.y<0 ? -1 : 1;	 // Facing eachother : moving away
+
+		   this.direction.y   *= value;
+		   entity.direction.y *= value;
+		 } else if ( this.direction.y && this.y<entity.y ) { // Vertical collision
+		   value = this.direction.y>0 && entity.direction.y<0 ? -1 : 1;	 // Facing eachother : moving away
+
+		   this.direction.y   *= value;
+		   entity.direction.y *= value;
+		 }
+
+		 if (value == -1) { // Collision facing eachother?
+			debug("x");
+		   this.penalty += 10; /* Time penalty */
+  		   entity.penalty += 10;
+		 }
 	  }
 	},
 	moveToField: function(x, y) {
@@ -119,6 +143,11 @@ Monster.prototype = {
 			/* If monster's just started, don't move yet */
 			//this.vx = this.vy = 0;
 			this.stime--;
+			return;
+		}
+
+		if (this.penalty!=0) { // Wait penalty-time
+			this.penalty--;
 			return;
 		}
 
@@ -235,7 +264,6 @@ Monster.prototype = {
 		//}
 
 		/* Check field and find direction */
-
 		if ( this.canEnterTile( npMonster.x + mdirp1.x, npMonster.y + mdirp1.y )) {
 		    this.target = {x: npMonster.x + mdirp1.x, y: npMonster.y + mdirp1.y };
 			dir = mdirp1;
@@ -268,17 +296,11 @@ Monster.prototype = {
 
 		/* Monsters take a time penalty for changing direction */
 		if (this.direction!=dir) {
-		  this.t++;
+		  this.penalty++;
 		}
 
-		/* Save the new direction */
-		this.direction = dir;
-
-	  /* Monsters digger */
-		if (this.isHobbin()) {
-			// FIXME create tunnel
-			//	digger.Drawing.eatfield(npMonster.x,npMonster.y,this.direction);
-		}
+	  /* Save the new direction */
+	  this.direction = dir;
 
 	  /* (Draw new tunnels) and move monster */
 	  this.vy = this.vx = 0;
@@ -300,28 +322,28 @@ Monster.prototype = {
 	  }
 
 	  //push = true;
-	//	  digger.Main.incpenalty();
+	  //	  digger.Main.incpenalty();
 
 	  /* Collision with another monster */
 	  //if ((clbits&0x3f00)!=0) {
-      //	this.t++; /* Time penalty */
+      //	this.penalty++; /* Time penalty */
 	  //checkcoincide(mon,clbits); /* Ensure both aren't moving in the same dir. */
 	  //incpenalties(clbits);
 	  //}
 
 	  /* Check for collision with bag */
 	  //if ((clbits&digger.Bags.bagbits())!=0) {
-	//	this.t++; /* Time penalty */
+	//	this.penalty++; /* Time penalty */
 		//mongotgold=false;
 //		if (this.direction==4 || this.direction==0) { /* Horizontal push */
 	//	  push=digger.Bags.pushbags(this.direction,clbits);
-	//	  this.t++; /* Time penalty */
+	//	  this.penalty++; /* Time penalty */
 //		}
 //		else
 	//	  if (!digger.Bags.pushudbags(clbits)) /* Vertical push */
 		//	push=false;
 //		if (mongotgold) /* No time penalty if monster eats gold */
-//		  this.t=0;
+//		  this.penalty=0;
 //		if (!this.nob && this.hnt>1)
 //		  digger.Bags.removebags(clbits); /* Monsters eat bags */
 //	  }
