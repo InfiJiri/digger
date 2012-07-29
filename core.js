@@ -102,6 +102,10 @@ Core.prototype = {
 		var self = this;
 		setTimeout(function() { self.reset(); }, 5000);
 	},
+	goToNextLevel: function() {
+		// FIXME just testing
+		this.reset();
+	},
 	reset: function() {
 		debug("Core.reset");
 
@@ -138,6 +142,11 @@ Core.prototype = {
 		}
 
 		this._map.update();
+		if (this._map.getEmeraldCount()==0) {
+			this.goToNextLevel();
+			return;
+		}
+
 		this._mapRenderer.update();
 
 		this.detectcollision();	
@@ -192,7 +201,16 @@ Core.prototype = {
 			if (entity.draw) {
 				entity.draw(this._context, interpolation);
 			}
-		}		
+		}
+
+		for( var i=0; i < this._map._map.length; i++ ) {
+			var y = Math.floor(i / this._map.getNumCols());
+			var x = i % this._map.getNumCols();
+
+			this._context.fillStyle = "#ffffff";
+			this._context.fillText( this._map.getPositionValue(x,y), x * this._map.getTileWidth() + 0.5*this._map.getTileWidth(), y * this._map.getTileHeight() + this._map.getOffsetY() + 0.5 * this._map.getTileHeight() );
+		}
+		
 		
 		Debug.updateFps();
 	},

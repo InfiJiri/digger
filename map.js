@@ -24,11 +24,6 @@ var Map = function(data) {
 
 	// Store original map
 	this._start = data;
-	for( var i=0; i<data.length; i++ ) {
-		this._map.push(data[i]);
-	}
-//	this._map   = data;
-
 	this.reset();
 };
 
@@ -78,6 +73,18 @@ Map.prototype = {
 	getTileHeight: function() {
 		return this._tileHeight;
 	},
+	getEmeraldCount: function() {
+		var cnt = 0;
+		for( var i=0; i<this.entities.length; i++ ) {
+			var entity = this.entities[i];
+
+			if (entity.type == "emerald" && !entity.isdisposed) {	
+				cnt++;
+			}
+		}
+
+		return cnt;
+	},
 	isEntityTouching: function(entity1, entity2) {
 		var npEntity1 = this.getNormalizedEntityPosition(entity1);
 		var npEntity2 = this.getNormalizedEntityPosition(entity2);
@@ -120,7 +127,7 @@ Map.prototype = {
 		return { 
 			x: Math.floor((x - this.getOffsetX()) / this.getTileWidth()), 
 			y: Math.floor((y - this.getOffsetY()) / this.getTileHeight()) 
-		}	
+		}
 	},
 	getNormalizedEntityPosition: function(entity){ // Where's the center+middle of this entity?
 		var x = entity.x + (entity.width * 0.5);
@@ -139,12 +146,14 @@ Map.prototype = {
 	},
 	reset: function() {	
 		this.entities = [];
+		this._map     = [];
 
-		for( var y=0; y<this._start.length/this._numcols; y++ ) {
-			var offset = y * this._numcols;
+		for( var y=0; y<this._start.length/this.getNumCols(); y++ ) {
+			var offset = y * this.getNumCols();
 			var o      = null; // Object to be placed on map
-			for( var x=0; x<this._numcols; x++ ) {
+			for( var x=0; x<this.getNumCols(); x++ ) {
 				var value = this._start[offset + x];
+				this._map.push(value);
 				switch( value ) { // FIXME Code duplication
 					case E: // Emerald
 						o = new Emerald(this);
@@ -171,21 +180,24 @@ Map.prototype = {
 		}
 	},
 	canEntityEnterTile: function(entity, x, y) {
-		var result = false;
-
 		if (x>=this.getNumCols() || y>=this.getNumRows() || x<0 || y<0) {
 			return false;
 		}
-
+		
 		var np = this.getNormalizedEntityPosition(entity);	
-		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) {
+		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) { // Digger and Hobbin get to go anywhere
 			var original = this.getPositionValue(x, y);
 			var value    = original;
 
-			if (value > 0x0F) {
-				return result;
+			if (value > 0x0F) { // Not a 'sand' tile; monster not allowed to enter
+				return false;
 			}
 
+			if (value == 0) { // All clear.
+				return true;
+			}
+			
+			var result = false;
 			if (np.y > y) { // Entering from bottom
 				result =  (value & 4) == 0;
 			} else if ( np.x < x ) { // Entering from left
@@ -195,32 +207,38 @@ Map.prototype = {
 			} else if (np.x > x) { // Entering from right
 				result = (value & 2) == 0;
 			}
+
+			//debug(x + " " + y + " " + result);
+			return result;
 		}
 
-		return result;
+		return true;
 	},	
 	updateTunnel: function() {
 		for( var i=0; i<this.entities.length; i++ ) {
 			var entity = this.entities[i];
-			if (entity.type != "digger" && entity.type!="monster") {
-				continue;
-			}
 
+			// Only walk through 'digger' and 'monsters' (particularly Hobbni), because
+			// they are the only tunnel making entities. Also, if
+			if (entity.type != "digger" && !(entity.type=="monster" && entity.isHobbin()) ) {
+				continue;
+			}		
+			
 			var np    = this.getNormalizedEntityPosition(entity);
 
 			var coord = np.y * this.getNumCols() + np.x;
 
-			if ( entity.vx > 0 ) {
-				this._map[ coord ] &= (0x0F - 2);
+			if ( entity.vx > 0 ) { // Entering from left.
+				this._map[ coord ] &= (0x0F - 2); // Open right side of current tile
 				
-				if ( coord + 1 < this.getNumCols() ) {
-					this._map[ coord + 1 ] &= (0x0F - 8);
+				if ( coord + 1 < this.getNumCols() ) { // Not on most right tile?
+					this._map[ coord + 1 ] &= (0x0F - 8); // Open left side of target tile
 				}
-			} else if (entity.vx < 0) {
-				this._map[ coord ] &= (0x0F - 8);
+			} else if (entity.vx < 0) { // Entering from right.
+				this._map[ coord ] &= (0x0F - 8);  // Open left side of current tile
 				
-				if ( coord - 1 > (np.y * this.getNumCols()) ) {
-					this._map[ coord - 1 ] = this._map[ coord - 1] & (0x0F - 2);
+				if ( coord - 1 > (np.y * this.getNumCols()) ) { // Not on most left tile?
+					this._map[ coord - 1 ] &= (0x0F - 2); // Open right side of target tile
 				}
 			} else if (entity.vy > 0) {
 				this._map[ coord ] &= (0x0F - 4);
@@ -230,13 +248,18 @@ Map.prototype = {
 				}
 			} else if (entity.vy < 0) {
 				this._map[ coord ] &= (0x0F - 1);
-				
+
 				if ( coord - this.getNumCols() > 0) {
 					this._map[ coord - this.getNumCols() ] &= (0x0F - 4);
 				}
 			}
 
-			debug(this._map[coord]);
+			//if (entity.type=="monster" && this._map[coord]!=0) {
+				if (np.x == Math.floor(this.getNumCols() * 0.5) + 2) {
+					debug("B: " + this._map[coord]);
+				}
+				
+		//	}
 		}
 	},
 	update: function() {
