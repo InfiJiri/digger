@@ -46,6 +46,7 @@ Gold.prototype = {
 	_fallDelay: 1000, // shake 1 sec before falling
 	_fallGoldStart: null,
 	_fallGoldDelay: 10, // Display falling gold for 10ms 
+	_fellMultipleRows: false, // Did the bag fall multiple rows?
 	isdisposed: false,
 	state: "bag",
 	x     : 0,
@@ -62,20 +63,21 @@ Gold.prototype = {
 	},
 	moveToField: function(x, y) {
 		this._map.moveEntityToField(this, x, y);
+
+		this._map.setPositionValue(x, y, this._map.getPositionValue(x, y) & 0x0F); // Update map, remove 'gold'-value		
 	},
-	moveHorizontal: function(pusherEntity, x) {
+	moveHorizontal: function(pusherEntity) {
 		var np = this._map.getNormalizedEntityPosition(this);
+		var x  = pusherEntity.vx>0 ? np.x + 1 : np.x - 1; // Determine target
+
 		if ( x<0 || x==this._map.getNumCols() ) { // Border reached.
 			pusherEntity.vx = 0;
 
 			return;
 		}
 
-		var tileHeight = this._map.getTileHeight();
-		var tileWidth  = this._map.getTileWidth();
-
 		this.vx        = pusherEntity.vx * 2; // Bump bag ahead.
-
+		
 		this.moveToField( x, np.y );
 	},
 	getNormalizedPosition: function() {
@@ -86,27 +88,11 @@ Gold.prototype = {
 			var npEntity = entity.getNormalizedPosition();
 			var npGold = this.getNormalizedPosition();
 
-			if ( npEntity.y != npGold.y ) {
-				dy      = entity.vy >0 ? -entity.speed : entity.speed;
-				entity.y += dy;
-				entity.vy = 0;
-			}			
-
-			if (this.state == "bag") {
-				if ( npEntity.y == npGold.y ) {
-					// Pushing bag
-					var x = npEntity.x;
-					if (entity.vx<0) {
-						x = npEntity.x - 1;
-					} else if (entity.vx>0) {
-						x = npEntity.x + 1
-					}
-
-					if ( entity.type == "digger" || entity.type=="monster" ) {
-						this.moveHorizontal(entity, x);
-					} else if ( (npEntity.x<npGold.x && this.vx<0) ||
-						(npEntity.x>npGold.x && this.vx>0) ) { // Is the entity being pushed, or is the entity pushing?
-						this.moveHorizontal(entity, x);
+			if (this.state == "bag" && (entity.type!="monster" || entity.isHobbin()) ) {
+				if ( npEntity.y == npGold.y ) { // Same row: pushing bag
+					if ( (npEntity.x<npGold.x && entity.vx>0) ||
+						(npEntity.x>npGold.x && entity.vx<0) ) { // Is the entity being pushed, or is the entity pushing?
+						this.moveHorizontal(entity);
 					}
 				}
 			} else if (this.state == "gold" && entity.type!="gold") {
@@ -114,7 +100,7 @@ Gold.prototype = {
 			} else if (this.state == "bagfall" && entity.y>this.y && entity.type!="gold") { // Bag to the face?
 				entity.kill();
 			}
-		} else if (entity.type=="monster" && this.state=="bag") {
+		} else if (entity.type=="monster" && this.state!="bag" && this.state != "bagfall") {
 			this.dispose();
 		}
 	},	
@@ -125,7 +111,7 @@ Gold.prototype = {
 			this._fallDelay >= (new Date).getTime() - this._fallStart )) { 
 
 			// Wait for it
-				
+
 			return;
 		}
 
@@ -143,21 +129,30 @@ Gold.prototype = {
 				return;
 			}
 
+			this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) & 0x0F); // Clear 'gold'-value in map
+
 			this.state = this.state == "gold" ? "gold" : "bagfall";
 
 			this.vy = this.vspeed;
-			
+
+			if (this.target && (nextRow > this.target.ny)) { // Fall another row?
+				this._fellMultipleRows = true;
+				debug("didididiiddidi");
+			}
+
 			this.moveToField( np.x, nextRow );
 		} else if ( this.target && this.y >= this.target.y ) { // Target defined, and no empty row under bag -> stop?
-			debug("okdone");
 			this.vx = this.vy = 0;
 			this.y  = this.target.y;
 
 			if (this.state == "bagfall") {
-				this.state = "goldfall";
+				this.state = "bag"; // Fall one row? no gold.
+				if (this._fellMultipleRows) {
+					this.state = "goldfall";
 
-				this._fallGoldStart = (new Date).getTime();
-				this.target = null;
+					this._fallGoldStart = (new Date).getTime();
+					this.target = null;
+				}				
 			}
 		}
 	},
@@ -190,6 +185,8 @@ Gold.prototype = {
 					this.vx = this.vy = 0;   // stop
 					this.x  = this.target.x; // set exact position
 
+					this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) & this._map.G); // Update map 'gold'-value
+					
 					this.target = null;
 
 					this.fall(true);

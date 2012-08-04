@@ -1,11 +1,13 @@
 // FIXME Global variables :'(
-var B = 0x10;  // Bonus
-var D = 0x20;  // Digger
-var E = 0x30;  // Emerald
-var G = 0x40;  // Gold
-var M = 0x50;  // Monster
+var B = 0x1F;  // Bonus
+var D = 0x2F;  // Digger
+var E = 0x3F;  // Emerald
+var G = 0x4F;  // Gold
+var M = 0x5F;  // Monster
 var S = 0x60;  // Spawn-point (monsters)
 var X = 0x0F;  // Untouched tile
+var H = 0x0A;  // Horizontal tile
+var V = 0x05;  // Vertical tile
 // 0 .. 15 define walls
 
 var Map = function(data) {
@@ -175,7 +177,7 @@ Map.prototype = {
 		var tileWidth  = this.getTileWidth();
 
 		entity.target = {x:tileWidth * x  + this.getOffsetX() +  this.getEntityOffsetWidth(entity),
-			y:tileHeight * y + this.getOffsetY() + this.getEntityOffsetHeight(entity) };
+			y:tileHeight * y + this.getOffsetY() + this.getEntityOffsetHeight(entity), nx: x, ny: y };
 	},
 	reset: function() {	
 		this.entities = [];
@@ -222,7 +224,7 @@ Map.prototype = {
 			var original = this.getPositionValue(x, y);
 			var value    = original;
 
-			if (value > 0x0F) { // Not a 'sand' tile; monster not allowed to enter
+			if (value > 0x0F && (value & 0x0F) ) { // Not a 'sand' tile; monster not allowed to enter
 				return false;
 			}
 
@@ -261,28 +263,28 @@ Map.prototype = {
 			var coord = np.y * this.getNumCols() + np.x;
 
 			if ( entity.vx > 0) { // Entering from left.
-				this._map[ coord ] &= (0x0F - 2); // Open right side of current tile
+				this._map[ coord ] &= (0xFF - 2); // Open right side of current tile
 
 				if ( coord + 1 < (this.getNumCols() * np.y + this.getNumCols()) && this.isEntityEnteringTile(entity, np.x + 1, np.y) ) { // Not on most right tile, and is entering?
-					this._map[ coord + 1 ] &= (0x0F - 8); // Open left side of target tile
+					this._map[ coord + 1 ] &= (0xFF - 8); // Open left side of target tile
 				}
 			} else if (entity.vx < 0) { // Entering from right.
-				this._map[ coord ] &= (0x0F - 8);  // Open left side of current tile
+				this._map[ coord ] &= (0xFF - 8);  // Open left side of current tile
 				
 				if ( coord - 1 > (np.y * this.getNumCols()) && this.isEntityEnteringTile(entity, np.x - 1, np.y)  ) { // Not on most left tile?
-					this._map[ coord - 1 ] &= (0x0F - 2); // Open right side of target tile
+					this._map[ coord - 1 ] &= (0xFF - 2); // Open right side of target tile
 				}
 			} else if (entity.vy > 0) {
-				this._map[ coord ] &= (0x0F - 4);
+				this._map[ coord ] &= (0xFF - 4);
 				
 				if ( coord + this.getNumCols() < this._map.length && this.isEntityEnteringTile(entity, np.x, np.y + 1)  ) {
-					this._map[ coord + this.getNumCols() ] &= (0x0F - 1);	
+					this._map[ coord + this.getNumCols() ] &= (0xFF - 1);	
 				}
 			} else if (entity.vy < 0) {
-				this._map[ coord ] &= (0x0F - 1);
+				this._map[ coord ] &= (0xFF - 1);
 
 				if ( coord - this.getNumCols() > 0 && this.isEntityEnteringTile(entity, np.x, np.y - 1)) {
-					this._map[ coord - this.getNumCols() ] &= (0x0F - 4);
+					this._map[ coord - this.getNumCols() ] &= (0xFF - 4);
 				}
 			}
 		}

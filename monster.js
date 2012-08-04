@@ -35,6 +35,7 @@ var Monster = function(map) {
 
 Monster.prototype = {
 	_animations: {},
+	_spawnTime:  50,
 	type:        "monster",
 	state:       "nobbin",
 	vx:          0,
@@ -44,7 +45,7 @@ Monster.prototype = {
 	normx:       0,
 	normy:       0,	
 	hnt:         0,
-	stime:      50,
+	stime:       50, // Current spawn wait time
 	penalty:     0,
 	direction:   { x: 0, y: 0 },
 	target:      null,
@@ -54,7 +55,24 @@ Monster.prototype = {
 	width:       34,
 
 	kill: function() {
-		alert("This kills the Monster");
+		this.respawn();
+	},
+	respawn: function() {
+		var data   = this._map.getStartData();
+		var numCols = this._map.getNumCols();
+
+		for (var y=0; y<(data.length / numCols); y++ ) {
+			var offset = y * numCols;
+			for (var x=0; x<numCols; x++) {
+				if (data[offset + x] == S) { // Spawn point? (global variable >:( )
+					this.placeInField(x, y);
+
+					this.stime = this._spawnTime;
+
+					return;
+				}
+			}
+		}
 	},
 	isHobbin: function() {
 		return this.state == "hobbin";
@@ -81,7 +99,6 @@ Monster.prototype = {
 	update: function() {
 		this.step();
 	},
-
 	draw: function(context, interpolation) {
 		this.animate(context, interpolation);
 	},
@@ -125,6 +142,13 @@ Monster.prototype = {
 	},
 	moveToField: function(x, y) {
 		this._map.moveEntityToField(this, x, y);
+	},
+	placeInField: function(x, y) {
+		this._map.moveEntityToField(this, x, y);
+
+		this.x = this.target.x;
+		this.y = this.target.y;
+		this.target = null;
 	},	
 	step: function() { // Taken from the java-port of Digger @ digger.org
 	  var dir;
