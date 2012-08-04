@@ -62,9 +62,11 @@ Gold.prototype = {
 		return this.target!==null;
 	},
 	moveToField: function(x, y) {
-		this._map.moveEntityToField(this, x, y);
+		var np = this.getNormalizedPosition();
 
-		this._map.setPositionValue(x, y, this._map.getPositionValue(x, y) & 0x0F); // Update map, remove 'gold'-value		
+		this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.yy) & 0x0F); // Update map, remove 'gold'-value		
+	
+		this._map.moveEntityToField(this, x, y);
 	},
 	moveHorizontal: function(pusherEntity) {
 		var np = this._map.getNormalizedEntityPosition(this);
@@ -137,7 +139,6 @@ Gold.prototype = {
 
 			if (this.target && (nextRow > this.target.ny)) { // Fall another row?
 				this._fellMultipleRows = true;
-				debug("didididiiddidi");
 			}
 
 			this.moveToField( np.x, nextRow );
@@ -185,7 +186,7 @@ Gold.prototype = {
 					this.vx = this.vy = 0;   // stop
 					this.x  = this.target.x; // set exact position
 
-					this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) & this._map.G); // Update map 'gold'-value
+					this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) ^ G); // Update map 'gold'-value (global variable >:( )
 					
 					this.target = null;
 
