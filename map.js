@@ -179,6 +179,35 @@ Map.prototype = {
 		entity.target = {x:tileWidth * x  + this.getOffsetX() +  this.getEntityOffsetWidth(entity),
 			y:tileHeight * y + this.getOffsetY() + this.getEntityOffsetHeight(entity), nx: x, ny: y };
 	},
+	buildInitialTunnel: function() {
+		// Walk through all fields, determine which of them are zero - these form the original tunnel
+		// the level. Assign these fields their appropriate values (depending on neighbour-fields), and
+		// draw the tunnel.
+
+		var startData = this.getStartData();
+		var numCols   = this.getNumCols();
+
+		for( var y=0; y<startData.length / numCols; y++ ) {
+			var offset = y * numCols;
+			for( var x=0; x<numCols; x++ ) {
+				if (startData[offset + x] != 0){
+					continue;
+				}
+
+				var top    = (y - 1 < 0) ? 0 : this.getPositionValue(x, y - 1);
+				var right  = (x + 1 > numCols) ? 0 : this.getPositionValue(x + 1, y);
+				var bottom = (y + 1 > (startData.length / numCols)) ? 0 : this.getPositionValue(x, y + 1);
+				var left   = (x - 1 < 0) ? 0 : this.getPositionValue(x - 1, y);
+
+				var value  = (top & 4) ? 1 : 0; // Top has bottom wall?
+				value     |= (right & 8) ? 2 : 0; // Right has left wall?
+				value     |= (bottom & 1) ? 4 : 0; // Bottom has top wall?
+				value     |= (left & 2) ? 8 : 0; // Left has right wall?
+
+				this.setPositionValue(x, y , value);
+			}
+		}
+	},
 	reset: function() {	
 		this.entities = [];
 		this._map     = [];
@@ -213,6 +242,8 @@ Map.prototype = {
 				this.entities.push(o);
 			}
 		}
+
+		this.buildInitialTunnel();
 	},
 	canEntityEnterTile: function(entity, x, y) {
 		if (x>=this.getNumCols() || y>=this.getNumRows() || x<0 || y<0) {
