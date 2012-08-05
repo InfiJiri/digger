@@ -234,7 +234,7 @@ Core.prototype = {
 			this._context.fillText( this._map.getPositionValue(x,y), x * this._map.getTileWidth() + 0.5*this._map.getTileWidth(), y * this._map.getTileHeight() + this._map.getOffsetY() + 0.5 * this._map.getTileHeight() );
 		}
 		
-		
+		//this._mapRenderer.reset();
 		Debug.updateFps();
 	},
 	step: function() {

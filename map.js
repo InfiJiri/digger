@@ -194,10 +194,10 @@ Map.prototype = {
 					continue;
 				}
 
-				var top    = (y - 1 < 0) ? 0 : this.getPositionValue(x, y - 1);
-				var right  = (x + 1 > numCols) ? 0 : this.getPositionValue(x + 1, y);
-				var bottom = (y + 1 > (startData.length / numCols)) ? 0 : this.getPositionValue(x, y + 1);
-				var left   = (x - 1 < 0) ? 0 : this.getPositionValue(x - 1, y);
+				var top    = (y - 1 < 0) ? 0x0F : this.getPositionValue(x, y - 1);
+				var right  = (x + 1 > numCols - 1) ? 0x0F : this.getPositionValue(x + 1, y);
+				var bottom = (y + 1 > (startData.length / numCols) - 1) ? 0x0F : this.getPositionValue(x, y + 1);
+				var left   = (x - 1 < 0) ? 0x0F : this.getPositionValue(x - 1, y);
 
 				var value  = (top & 4) ? 1 : 0; // Top has bottom wall?
 				value     |= (right & 8) ? 2 : 0; // Right has left wall?

@@ -17,7 +17,7 @@ var MapRenderer = function(canvas, map, offset) {
 		this._y = offset.y ? offset.y : 0;
 	}
 	
-	this.reset();
+	//this.reset();
 };
 
 MapRenderer.prototype = {
@@ -72,13 +72,15 @@ MapRenderer.prototype = {
 	},
 	draw: function() {
 		debug("MapRenderer.draw");
-		var start = this._map.getStartData();
-		for( var y=0; y<start.length/this._map.getNumCols(); y++ ) {
-			var offset = y*this._map.getNumCols();
+		
+		//var start = this._map.getStartData();
+		var data = this._map.getMapData();
+		for( var y=0; y<data.length/this._map.getNumCols(); y++ ) {
+			var offset = y * this._map.getNumCols();
 			for( var x=0; x<this._map.getNumCols(); x++ ) {
-				var value = start[offset + x];
+				var value = data[offset + x];
 
-				if (value!==0) {
+				if ((value & 0x0F) == 0x0F) { // Sand tile
 					continue; // Nothing to do
 				}
 
@@ -86,15 +88,37 @@ MapRenderer.prototype = {
 				var tileWidth  = this._map.getTileWidth();
 				var tileHeight = this._map.getTileHeight();
 				
-				var radius = this.getTunnelRadius();			
+				var radius   = this.getTunnelRadius();
+				var diameter = 2 * radius;
 
-				var tunnelX = this._map.getOffsetX() + x * tileWidth + (0.5 * tileWidth);
-				var tunnelY = this._map.getOffsetY() + y * tileHeight + (0.5 * tileHeight)
+				var tunnelXL = this._map.getOffsetX() + x * tileWidth;  // Left of tile
+				var tunnelYT = this._map.getOffsetY() + y * tileHeight; // Top of tile
+				var tunnelXC = tunnelXL + (0.5 * tileWidth);			// Center of tile
+				var tunnelYC = tunnelYT + (0.5 * tileHeight)            // Middle of tile
 				
 				this._context.beginPath();
-				this._context.arc(tunnelX, tunnelY, radius, 0, 2 * Math.PI, false);
+				this._context.arc(tunnelXC, tunnelYC, radius, 0, 2 * Math.PI, false);
 				this._context.fillStyle = "#000000";
 				this._context.fill();
+						
+				// TODO: put in a function and resolve code duplication
+				if ((value & 0x01) == 0) { // Top is open -> fill upper half
+					this._context.fillRect(tunnelXC - radius, tunnelYT, diameter, tileHeight * 0.5);
+				}
+
+				if ((value & 0x02) == 0) { // Right is open -> fill right half
+					this._context.fillRect(tunnelXC, tunnelYC - radius, tileWidth * 0.5, diameter);
+				}
+
+				if ((value & 0x04) == 0) { // Bottom is open -> fill bottom half
+					this._context.fillRect(tunnelXC - radius, tunnelYC, diameter, tileHeight * 0.5);
+				}
+
+				if ((value & 0x08) == 0) { // Left is open -> fill left half
+					this._context.fillRect(tunnelXL, tunnelYC - radius, diameter * 0.5, diameter);
+				}
+
+				//this._context.closePath();
 			}
 		}
 	}
