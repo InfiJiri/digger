@@ -1,8 +1,8 @@
 // FIXME Global variables :'(
 var B = 0x1F;  // Bonus
-var D = 0x2F;  // Digger
+var D = 0x20;  // Digger
 var E = 0x3F;  // Emerald
-var G = 0x4F;  // Gold
+var G = 0x40;  // Gold
 var M = 0x5F;  // Monster
 var S = 0x60;  // Spawn-point (monsters)
 var X = 0x0F;  // Untouched tile
@@ -190,7 +190,11 @@ Map.prototype = {
 		for( var y=0; y<startData.length / numCols; y++ ) {
 			var offset = y * numCols;
 			for( var x=0; x<numCols; x++ ) {
-				if (startData[offset + x] != 0){
+				if (startData[offset + x] != 0 && startData[offset + x] != D){ // Not tunnel-part, or Digger?
+					if (startData[offset + x] != S) { // Not spawn-point
+						this.setPositionValue(x, y , this.getPositionValue(x, y) | 0x0F ); // Sand-tile
+					}
+
 					continue;
 				}
 

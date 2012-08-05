@@ -64,7 +64,7 @@ Gold.prototype = {
 	moveToField: function(x, y) {
 		var np = this.getNormalizedPosition();
 
-		this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.yy) & 0x0F); // Update map, remove 'gold'-value		
+		this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) & 0x0F); // Update map, remove 'gold'-value
 	
 		this._map.moveEntityToField(this, x, y);
 	},
@@ -131,8 +131,6 @@ Gold.prototype = {
 				return;
 			}
 
-			this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) & 0x0F); // Clear 'gold'-value in map
-
 			this.state = this.state == "gold" ? "gold" : "bagfall";
 
 			this.vy = this.vspeed;
@@ -186,7 +184,7 @@ Gold.prototype = {
 					this.vx = this.vy = 0;   // stop
 					this.x  = this.target.x; // set exact position
 
-					this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) ^ G); // Update map 'gold'-value (global variable >:( )
+					this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) | G); // Update map 'gold'-value (global variable >:( )
 					
 					this.target = null;
 
