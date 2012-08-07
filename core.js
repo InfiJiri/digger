@@ -202,7 +202,11 @@ Core.prototype = {
 				if (this._map.isEntityTouching(entity1, entity2)) {
 
 					if (entity2.collide) { // Entity has 'collide' function?
-						entity2.collide(entity1);
+						var data = entity2.collide(entity1);
+
+						if (data && data.score) {
+							this._hud.score += data.score;
+						}
 					}					
 				}
 			}
@@ -232,6 +236,8 @@ Core.prototype = {
 				entity.draw(this._context, interpolation);
 			}
 		}
+
+		this._hud.draw();
 
 		
 		// Debug -> move to debug

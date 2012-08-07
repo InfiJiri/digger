@@ -99,6 +99,10 @@ Gold.prototype = {
 				}
 			} else if (this.state == "gold" && entity.type!="gold") {
 				this.dispose();
+
+				if (entity.type == "digger") {
+					return {score: 150};
+				}				
 			} else if (this.state == "bagfall" && entity.y>this.y && entity.type!="gold") { // Bag to the face?
 				entity.kill();
 			}

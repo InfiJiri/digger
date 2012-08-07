@@ -20,6 +20,10 @@ Emerald.prototype = {
 	collide: function(entity) {
 		if (entity.type=="digger" || (entity.type=="monster" && entity.isHobbin()) ) {
 			this.dispose();
+
+			if (entity.type == "digger") {
+				return {score: 50};
+			}
 		}
 	},	
 	dispose: function() {

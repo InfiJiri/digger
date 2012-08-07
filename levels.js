@@ -20,5 +20,5 @@ var levels = [
 		X,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0, 0, 0  ],
 	  background: "background.png",
 	  monsterCount: 5,
-	  numcols:  21},		
+	  numcols:  21},
 ];

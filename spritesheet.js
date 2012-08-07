@@ -13,6 +13,14 @@ SpriteSheet.prototype = {
         this._width   = data.width;
         this._sprites = data.sprites;
     },
+
+	getWidth: function() {
+		return this._width;
+	},	
+	
+	getHeight: function() {
+		return this._height;
+	},
  
     getOffset: function(spriteName) {
 		var sprite = this._sprites[spriteName];
