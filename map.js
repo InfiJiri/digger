@@ -10,27 +10,20 @@ var H = 0x0A;  // Horizontal tile
 var V = 0x05;  // Vertical tile
 // 0 .. 15 define walls
 
-var Map = function(data) {
+var Map = function(level) {
 	debug("Map.init");
 
-	// TODO load map
-	// TEST map
-	data = [
-		X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,  
-		X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, S,
-		X,	X,	G,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, 0,
-		X,	X,	X,	X,	0,	X,	0,	0,	D,	X,	X,	E,	E,	E,	X,	X,	X,	X, X, X, 0,
-		X,	X,	G,	G,	X,	X,	X,	X,	0,	X,	X,	E,	E,	E,	X,	X,	X,	X, X, X, 0,
-		X,	X,	X,	X,	X,	X,	X,	X,	0,	X,	X,	E,	E,	E,	0,	0,	0,	0, 0, 0, 0,
-		X,	X,	X,	X,	0,	0,	0,	X,	0,	0,	0,	0,	0,	0,	0,	X,	X,	X, X, X, X  ];
+	this._level = level;
+	map = level.map;
 
 	// Store original map
-	this._start = data;
+	this._start = map;
 	this.reset();
 };
 
 Map.prototype = {
 	_numcols: 21,
+	_level:  null,
 	_offset: { x: 0, y: 25 },
 	_tileWidth:  40,
 	_tileHeight: 40,
@@ -235,6 +228,7 @@ Map.prototype = {
 						break;
 					case S: // Spawn-point
 						o = new SpawnPoint(this);
+						o.monsterCount = this._level.monsterCount;
 						break;
 					default:
 						continue; // Nothing to do

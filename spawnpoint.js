@@ -10,18 +10,19 @@ SpawnPoint.prototype = {
 	y: 0,
 	height:   34,
 	width:    34,
+	_currentMonsterCount: 0,
 	monsterCount: 0,
 	delay: 4000, // ms
 	_timerStart: 0,
 	update: function() {
 		if (this._timerStart == 0 || this.delay < (new Date).getTime() - this._timerStart) {
-			if (this.monsterCount < 2) {
+			if (this._currentMonsterCount < this.monsterCount) {
 				var m = new Monster(this._map);
 				m.x = this.x;
 				m.y = this.y;
 
 				this._map.entities.push(m);
-				this.monsterCount++;				
+				this._currentMonsterCount++;				
 			}
 		
 			this._timerStart = (new Date).getTime();

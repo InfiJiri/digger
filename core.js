@@ -1,14 +1,14 @@
-var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
+var Core = function(canvas, mapCanvas, levels, frameTimer, hud) {
 	debug("Core.init");
 
 	this._canvas     = canvas;
+	this._mapCanvas  = mapCanvas;
 	this._context    = canvas.getContext("2d");
 	this._frametimer = frameTimer;
 
-	this._hud 		  = hud
-
-	this._map = map;
-	this._mapRenderer = new MapRenderer(mapCanvas, map);
+	this._levels     = levels;
+	
+	this._hud 		 = hud
 
 	// FIXME
 	// Hmpf the handling of these key events should be
@@ -91,6 +91,7 @@ var Core = function(canvas, mapCanvas, map, frameTimer, hud) {
 Core.prototype = {
 	_canvas:       null,
 	_context:      null,
+	_currentLevel:  0,
 	_frametimer:   null,
 	_nextGameTick: null,
 	_intervalId:   false,
@@ -120,19 +121,31 @@ Core.prototype = {
 		setTimeout(function() { self.reset(); }, 5000);
 	},
 	goToNextLevel: function() {
-		// FIXME just testing
+		if (this._currentLevel == this._levels.length - 1) {
+		 this._currentLevel = 0;
+		} else {
+			this._currentLevel++;
+		}
+
 		this.reset();
 	},
-	reset: function() {
+	reset: function(fullReset) {
 		debug("Core.reset");
 
+		if (fullReset) {
+			this._currentLevel = 0;
+		}
+		
 		if (this._intervalId!==false) { // Enforce PAUSE
 			clearInterval(this._intervalId);
 			this._intervalId = false;
 		}
 
 		this.isover = false;		
-		this._map.reset();
+
+		this._map = new Map(this._levels[this._currentLevel]);
+		this._mapRenderer = new MapRenderer(this._mapCanvas, this._map);		
+		
 		this._hud.reset();
 
 		this._mapRenderer.reset();
