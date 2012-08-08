@@ -194,20 +194,32 @@ Core.prototype = {
 			}
 
 			for( var j=0; j<this._map.entities.length; j++ ) {
+				if (i==j) { // Don't collide with anything below matrix diagonal
+					break;
+				} 
+				
 				var entity2 = this._map.entities[j];
-				if (j==i || entity2.isdisposed) { // Don't detect collision with self, and don't collide entities that aren't part of the game anymore
+				if (entity2.isdisposed) {  // Don't collide entities that aren't part of the game anymore
 					continue;
-				}
+				}			
 				
 				if (this._map.isEntityTouching(entity1, entity2)) {
 
-					if (entity2.collide) { // Entity has 'collide' function?
+					if (entity1.collide) { // Entity 1 has 'collide' function?
+						var data = entity1.collide(entity2);
+
+						if (data && data.score) {
+							this._hud.score += data.score;
+						}
+					}
+					
+					if (entity2.collide) { // Entity 1 has 'collide' function?
 						var data = entity2.collide(entity1);
 
 						if (data && data.score) {
 							this._hud.score += data.score;
 						}
-					}					
+					}
 				}
 			}
 		}
@@ -239,7 +251,6 @@ Core.prototype = {
 
 		this._hud.draw();
 
-		
 		// Debug -> move to debug
 		if (!Debug.enabled) {
 			return;

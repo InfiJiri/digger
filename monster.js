@@ -44,7 +44,7 @@ Monster.prototype = {
 	y:           0,
 	normx:       0,
 	normy:       0,	
-	hnt:         0,
+	hnt:         0,  // Hobbin count
 	stime:       50, // Current spawn wait time
 	penalty:     0,
 	direction:   { x: 0, y: 0 },
@@ -110,34 +110,49 @@ Monster.prototype = {
 	},
 	collide: function(entity) {
 	  if (entity.type=="monster") {
-		var value = 0;
-		 if ( this.direction.x && this.x>entity.x) { // Horizontal collision
-		   value = entity.direction.x>0 && this.direction.x<0 ? -1 : 1;	 // Facing eachother : moving away
+		var increasePenalty = false;
+		
+		// Horizontal reverse this object?
+		if ( (this.x>entity.x && this.direction.x<0) ||
+			(this.x<entity.x && this.direction.x>0)) {
+			this.direction.x *= -1;
 
-		   this.direction.x   *= value;
-		   entity.direction.x *= value;
-		 } else if ( this.direction.x && this.x<entity.x ) {
-		   value = this.direction.x>0 && entity.direction.x<0 ? -1 : 1;	 // Facing eachother : moving away		 
+			increasePenalty = true;
+		}
 
-		   this.direction.x   *= value;
-		   entity.direction.x *= value;
-		 } else if ( this.direction.y && this.y>entity.y ) { // Vertical collision
-		    value = entity.direction.y>0 && this.direction.y<0 ? -1 : 1;	 // Facing eachother : moving away
+		// Horizontal reverse entity?
+		if ( (entity.x>this.x && entity.direction.x<0) ||
+			(entity.x<this.x && entity.direction.x>0)) {
+			entity.direction.x *= -1;
 
-		   this.direction.y   *= value;
-		   entity.direction.y *= value;
-		 } else if ( this.direction.y && this.y<entity.y ) { // Vertical collision
-		   value = this.direction.y>0 && entity.direction.y<0 ? -1 : 1;	 // Facing eachother : moving away
+			increasePenalty = true;
+		}
 
-		   this.direction.y   *= value;
-		   entity.direction.y *= value;
-		 }
+		// Vertical reverse this object?
+		if ( (this.y>entity.y && this.direction.y<0) ||
+			(this.y<entity.y && this.direction.y>0)) {
+			this.direction.y *= -1;
 
-		 if (value == -1) { // Collision facing eachother?
-			debug("x");
-		   this.penalty += 10; /* Time penalty */
-  		   entity.penalty += 10;
-		 }
+			increasePenalty = true;
+		}
+
+		// Vertical reverse entity?
+		if ( (entity.y>this.y && entity.direction.y<0) ||
+			(entity.y<this.y && entity.direction.y>0)) {
+			entity.direction.y *= -1;
+
+			increasePenalty = true;
+		}
+
+		if (increasePenalty) { // Collision facing eachother?
+		 //if (facingCollision) { // Collision facing eachother?
+		//	debug("x");
+			this.penalty += 10; /* Time penalty */
+			entity.penalty += 10;
+			
+			this.hnt += 5;
+			entity.hnt += 5;
+		}
 	  }
 	},
 	moveToField: function(x, y) {
@@ -161,6 +176,10 @@ Monster.prototype = {
 	  var digger = this._map.getDigger();
 	  npDigger = digger.getNormalizedPosition();
 	  npMonster = this._map.getNormalizedEntityPosition(this);
+	  
+	  if (this.hnt>10 && this.state == "nobbin") {
+		this.state = "hobbin";
+	  }
 
 	  if (this.target) {
 		if (this.stime!=0) {
@@ -341,7 +360,7 @@ Monster.prototype = {
 	  }
 
 	  /* Increase time counter for monster */
-	  if (!this.isHobbin() && this.hnt<100) {
+	  if (this.isHobbin() && this.hnt<100) {
 		this.hnt++;
 	  }
 
