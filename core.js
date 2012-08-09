@@ -18,11 +18,14 @@ var Core = function(canvas, mapCanvas, levels, frameTimer, hud) {
 	document.onkeydown = function(e) {
 		var digger = self.getDigger();
 
+		if (self.isPaused()) { // Pause -> any key
+			self.togglePause();
+		}
+		
 		if (digger.action == "die") {
 			return;
 		}
 
-		
 		// direction
 		// 0 = neutral
 		// 1 = up
@@ -101,16 +104,19 @@ Core.prototype = {
 	getDigger: function() { // Player
 		return this._map.getDigger();
 	},
+	isPaused: function() {
+		return this._intervalId===false;
+	},
 	togglePause:   function() {
 		debug("Core.togglePause(pause:" + (this._intervalId===false ? "off" : "on") + ")");
 		
 		var self = this;
-		if (this._intervalId===false) {
+		if (this.isPaused()) { // Continue
 			this._nextGameTick = (new Date).getTime(); // Interpolation reset
 			this._intervalId   = setInterval( function() { self.step(); } , 0);
 
 			this._hud.togglePause(false);
-		} else {
+		} else { // Pause
 			clearInterval(this._intervalId);
 			this._intervalId = false;
 
