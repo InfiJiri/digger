@@ -212,7 +212,7 @@ Core.prototype = {
 							this._hud.score += data.score;
 						}
 					}
-					
+
 					if (entity2.collide) { // Entity 1 has 'collide' function?
 						var data = entity2.collide(entity1);
 

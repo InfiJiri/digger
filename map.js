@@ -115,24 +115,24 @@ Map.prototype = {
 		var npEntityMiddle = entity.y + (entity.height * 0.5);
 		var npTileCenter   = x * this.getTileWidth() + (this.getTileWidth() * 0.5) + this.getOffsetX();
 		var npTileMiddle   = y * this.getTileHeight() + (this.getTileHeight() * 0.5) + this.getOffsetY();
-		var minX      = npTileCenter - (0.45 * this.getTileWidth());
-		var maxX      = npTileCenter + (0.45 * this.getTileWidth());
-		var minY      = npTileMiddle - (0.45 * this.getTileHeight());
-		var maxY      = npTileMiddle + (0.45 * this.getTileHeight());
+		var minX      = npTileCenter - (0.49 * this.getTileWidth());
+		var maxX      = npTileCenter + (0.49 * this.getTileWidth());
+		var minY      = npTileMiddle - (0.49 * this.getTileHeight());
+		var maxY      = npTileMiddle + (0.49 * this.getTileHeight());
 
 		var x1 = entity.x;
 		var x2 = entity.x + entity.width;
 		var y1 = entity.y;
 		var y2 = entity.y + entity.height;
 
-		if (npEntity.y == y && entity.vx > 0) {
+		if (npEntity.y == y && (this.getNormalizedPosition(x1, entity.y).x==x-1) ) { // Entering from left?
 			return (x2 > minX && x2 < maxX);
-		} else if (npEntity.y == y && entity.vx<0) {
+		} else if (npEntity.y == y && (this.getNormalizedPosition(x2, entity.y).x==x+1) ) { // Entering from right?
 			return (x1 > minX && x1 < maxX);
 		} else if  ( ( y == npEntity.y+1 || y == npEntity.y-1 ) && npEntity.x == x ) {
-			if (entity.vy>0) {
+			if (this.getNormalizedPosition(entity.x, y1).y == y - 1) {
 				return (y2 > minY && y2 < maxY);
-			} else if (entity.vy<0) {
+			} else if (this.getNormalizedPosition(entity.x, y2).y == y + 1) {
 				return (y1 > minY && y1 < maxY);
 			}
 		}
@@ -291,25 +291,27 @@ Map.prototype = {
 
 			var coord = np.y * this.getNumCols() + np.x;
 
-			if ( entity.vx > 0 && this.isEntityEnteringTile(entity, np.x + 1, np.y)) { // Entering from left.
+			if ( this.isEntityEnteringTile(entity, np.x + 1, np.y)) { // Entering from left.
 				this._map[ coord ] &= (0xFF - 2); // Open right side of current tile
 
 				if ( coord + 1 < (this.getNumCols() * np.y + this.getNumCols()) ) { // Not on most right tile, and is entering?
 					this._map[ coord + 1 ] &= (0xFF - 8); // Open left side of target tile
 				}
-			} else if (entity.vx < 0 && this.isEntityEnteringTile(entity, np.x - 1, np.y)) { // Entering from right.
+			} else if (this.isEntityEnteringTile(entity, np.x - 1, np.y)) { // Entering from right.
 				this._map[ coord ] &= (0xFF - 8);  // Open left side of current tile
 				
 				if ( coord - 1 > (np.y * this.getNumCols())  ) { // Not on most left tile?
 					this._map[ coord - 1 ] &= (0xFF - 2); // Open right side of target tile
 				}
-			} else if (entity.vy > 0 && this.isEntityEnteringTile(entity, np.x, np.y + 1) ) {
+			}
+
+			if (this.isEntityEnteringTile(entity, np.x, np.y + 1) ) {
 				this._map[ coord ] &= (0xFF - 4);
 				
 				if ( coord + this.getNumCols() < this._map.length  ) {
 					this._map[ coord + this.getNumCols() ] &= (0xFF - 1);	
 				}
-			} else if (entity.vy < 0 && this.isEntityEnteringTile(entity, np.x, np.y - 1)) {
+			} else if (this.isEntityEnteringTile(entity, np.x, np.y - 1)) {
 				this._map[ coord ] &= (0xFF - 1);
 
 				if ( coord - this.getNumCols() > 0) {
