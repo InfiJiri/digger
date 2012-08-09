@@ -85,6 +85,25 @@ Digger.prototype = {
 			this.kill();
 		}
 	},
+	respawn: function() {
+		var position = this.getStartPosition();
+
+		this._map.setEntityNormalizedPosition(this, position.x, position.y);
+
+		this.action = "stand";
+	},
+	getStartPosition: function() {
+		var data    = this._map.getStartData();
+		var numCols = this._map.getNumCols();
+
+		for( var y=0; y<data.length/numCols; y++ ) {
+			for( var x=0; x<numCols; x++ ) {
+				if ((data[(y * numCols) + x] & 0xF0 ) == D) { // value - walls = Digger?
+					return {x:x, y:y};
+				}
+			}
+		}
+	},
 	kill: function() {
 		//alert("This kills the Digger");
 		this.action = "die";
@@ -96,8 +115,6 @@ Digger.prototype = {
 			width: this._map.getNumCols() * this._map.getTileWidth(),
 			height: this._map.getNumRows() * this._map.getTileHeight()
 		};
-
-		// FIXME Offset calculation duplicate code
 
 		var np = this.getNormalizedPosition();
 		if ( this.vx ) {

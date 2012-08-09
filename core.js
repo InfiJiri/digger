@@ -17,12 +17,20 @@ var Core = function(canvas, mapCanvas, levels, frameTimer, hud) {
 	var self = this;
 	document.onkeydown = function(e) {
 		var digger = self.getDigger();
-
-		if (self.isPaused()) { // Pause -> any key
-			self.togglePause();
-		}
 		
 		if (digger.action == "die") {
+			return;
+		}
+
+		if (self.isGameOver()) {
+			self.reset();
+
+			return;
+		}
+		
+		if (self.isPaused()) { // Pause -> any key
+			self.togglePause();
+
 			return;
 		}
 
@@ -99,7 +107,9 @@ Core.prototype = {
 	_nextGameTick: null,
 	_intervalId:   false,
 	_map:          null,
-	isover:        false,
+	_livesLeft:    2,
+	_isRespawning: false,
+	_isover:       false,
 	fps:           50,
 	getDigger: function() { // Player
 		return this._map.getDigger();
@@ -107,7 +117,10 @@ Core.prototype = {
 	isPaused: function() {
 		return this._intervalId===false;
 	},
-	togglePause:   function() {
+	isGameOver: function() {
+		return this._isover;
+	},
+	togglePause: function() {
 		debug("Core.togglePause(pause:" + (this._intervalId===false ? "off" : "on") + ")");
 		
 		var self = this;
@@ -123,12 +136,36 @@ Core.prototype = {
 			this._hud.togglePause(true);
 		}
 	},
-	gameOver: function() {
-		this.isover = true;
-		this.playSong();
+	toggleGameOver: function() {
+		this._isover = !this._isover;
+
+		if (this._isover) {
+			this._hud.toggleGameOver(true);
+			
+			//this.togglePause();
+		}
+	},
+	endLife: function() {
+		if (this._isRespawning) {
+			return;
+		}
 		
-		var self = this;
-		setTimeout(function() { self.reset(); }, 5000);
+		this.playSong();
+
+		// TODO Make this a prettier: little code duplication of gameOver
+		if (this._livesLeft==0) {
+			this.toggleGameOver();
+		} else {
+			this._livesLeft--;
+		
+			this._isRespawning = true;
+			
+			var self   = this;
+			var digger = this.getDigger();
+			setTimeout(function() { digger.respawn(); self._isRespawning=false }, 5000);
+		}
+
+		this._hud.lives = this._livesLeft;
 	},
 	goToNextLevel: function() {
 		if (this._currentLevel == this._levels.length - 1) {
@@ -146,12 +183,12 @@ Core.prototype = {
 			this._currentLevel = 0;
 		}
 		
-		if (this._intervalId!==false) { // Enforce PAUSE
+		if (!this.isPaused()) { // Enforce PAUSE
 			clearInterval(this._intervalId);
 			this._intervalId = false;
 		}
 
-		this.isover = false;		
+		this._isover = false;		
 
 		this._map = new Map(this._levels[this._currentLevel]);
 		this._mapRenderer = new MapRenderer(this._mapCanvas, this._map);		
@@ -167,9 +204,10 @@ Core.prototype = {
 	update: function() {
 		//debug("Core.update");
 		if (this.getDigger().action == "die") {
-			if (!this.isover) {
-				this.gameOver();
+			if (!this.isGameOver()) {		
+				this.endLife();
 			}
+
 			return;
 		}
 		

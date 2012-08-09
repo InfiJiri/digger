@@ -205,6 +205,10 @@ Map.prototype = {
 			}
 		}
 	},
+	setEntityNormalizedPosition: function(entity, x, y) {
+		entity.x = this.getOffsetX() + x * this.getTileWidth() + this.getEntityOffsetWidth(entity);
+		entity.y = this.getOffsetY() + y * this.getTileHeight() + this.getEntityOffsetHeight(entity);
+	},
 	reset: function() {	
 		this.entities = [];
 		this._map     = [];
@@ -235,8 +239,8 @@ Map.prototype = {
 				}
 
 				// Place object on map.
-				o.x = this.getOffsetX() + x * this.getTileWidth() + this.getEntityOffsetWidth(o);
-				o.y = this.getOffsetY() + y * this.getTileHeight() + this.getEntityOffsetHeight(o);	
+				this.setEntityNormalizedPosition(o, x , y);
+
 				this.entities.push(o);
 			}
 		}

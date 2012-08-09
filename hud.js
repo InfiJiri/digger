@@ -48,7 +48,7 @@ var Hud = function(canvas, hudSize) {
 			"y": { x: 4, y: 3 },
 			"z": { x: 5, y: 3 }
 		}
-	});	
+	});
 
 	this._image = new Image();
 	this._image.src = "images/chars.png";	
@@ -58,8 +58,10 @@ Hud.prototype = {
 	x: 0,
 	y: 0,
 	score:   0,
+	lives:   2,
 	_height: 30,
 	_isPaused: false,
+	_isGameOver: false,
 	getWidth: function() {
 		return this._width;
 	},	
@@ -67,11 +69,22 @@ Hud.prototype = {
 		return this._height;
 	},
 	reset: function() {
+		this._isPaused   = false;
+		this._isGameOver = false;
+		this.score = 0;
+	},
+	isGameOver: function() {
+		return this._isGameOver;
 	},
 	togglePause: function(enablePause) {
 		this._isPaused = enablePause;
 
 		this.draw(); // Draw one last time (or first time)
+	},
+	toggleGameOver: function(enableGameOver) {
+		this._isGameOver = enableGameOver;
+
+		this.draw();
 	},
 	draw: function() {
 		// Clear HUD background
@@ -81,7 +94,9 @@ Hud.prototype = {
         this._context.fill();
 
 		// Draw HUD
-		if (this._isPaused) {
+		if (this._isGameOver) {
+			this._drawText("Game over", true);
+		} else if (this._isPaused) {
 			this._drawText("Press any key", true);
 		} else {
 			this._drawScore();
@@ -89,6 +104,8 @@ Hud.prototype = {
 	},
 	_drawScore: function() {
 		this._drawText(this.score);
+
+		this._drawLives();
 	},
 	_drawText: function(text, centerMessage) {
 		xOffset = 0;
@@ -107,7 +124,7 @@ Hud.prototype = {
 			if (chars[i] == " ") { // Spaces are no actual chars
 				continue;
 			}
-			console.log(chars[i]);
+
 			var frame = this._sprites.getOffset(chars[i]);
 
 			this._context.drawImage(this._image,
@@ -120,7 +137,27 @@ Hud.prototype = {
 				width,
 				height);
 		}
+	},
+	_drawLives: function() {
+		var width  = this._sprites.getWidth();   // character width
+		var height = this._sprites.getHeight();  // character height		
 
+		// Draw lives
+		var x = 200; // FIXME 
+		for( var i=0; i<this.lives; i++ ) {
+			x += i * width;
+
+			var frame = this._sprites.getOffset("x"); // FIXME
+
+			this._context.drawImage(this._image,
+				frame.x,
+				frame.y,
+				width,
+				height,
+				x,
+				0,
+				width,
+				height);			
+		}
 	}
-	
 }
