@@ -16,7 +16,7 @@ var Debug = {
 	},
 	updateFps: function() {
 		if (this.enabled) {
-			this._fpsTarget.value = this._frametimer.getFps();
+			//this._fpsTarget.value = this._frametimer.getFps();
 		}
 	},
 };

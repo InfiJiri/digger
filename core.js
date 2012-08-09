@@ -103,14 +103,18 @@ Core.prototype = {
 	},
 	togglePause:   function() {
 		debug("Core.togglePause(pause:" + (this._intervalId===false ? "off" : "on") + ")");
-
+		
 		var self = this;
 		if (this._intervalId===false) {
 			this._nextGameTick = (new Date).getTime(); // Interpolation reset
 			this._intervalId   = setInterval( function() { self.step(); } , 0);
+
+			this._hud.togglePause(false);
 		} else {
 			clearInterval(this._intervalId);
 			this._intervalId = false;
+
+			this._hud.togglePause(true);
 		}
 	},
 	gameOver: function() {
