@@ -92,21 +92,27 @@ Gold.prototype = {
 
 			if (this.state == "bag" && (entity.type!="monster" || entity.isHobbin()) ) {
 				if ( npEntity.y == npGold.y ) { // Same row: pushing bag
+					if (entity.type == "monster" && entity.isHobbin()) { // Hobbin eats bag
+						this.dispose();
+						return;
+					}
+
 					if ( (npEntity.x<npGold.x && entity.vx>0) ||
-						(npEntity.x>npGold.x && entity.vx<0) ) { // Is the entity being pushed, or is the entity pushing?
+						(npEntity.x>npGold.x && entity.vx<0) ) { // Is the entity pushing the bag?
 						this.moveHorizontal(entity);
 					}
 				}
-			} else if (this.state == "gold" && entity.type!="gold") {
+			} else if (this.state == "gold" && (entity.type=="monster" || entity.type=="digger")) {
 				this.dispose();
 
 				if (entity.type == "digger") {
 					return {score: 150};
 				}				
-			} else if (this.state == "bagfall" && entity.y>this.y && entity.type!="gold") { // Bag to the face?
+			} else if (this.state == "bagfall" && ((entity.y + entity.height)>this.y) && 
+				(entity.type=="monster" || entity.type=="digger")) { // Bag to the face?
 				entity.kill();
 			}
-		} else if (entity.type=="monster" && this.state!="bag" && this.state != "bagfall") {
+		} else if (entity.type=="monster" && (this.state=="gold" || this.state=="goldfall") ) { // Both monsters and digger eat gold
 			this.dispose();
 		}
 	},	

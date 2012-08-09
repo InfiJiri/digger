@@ -321,27 +321,6 @@ Map.prototype = {
 		}
 	},
 	update: function() {
-		// Update tunnels in map
-		//for( var i=0; i<this.entities.length; i++ ) {
-			//var entity = this.entities[i];
-
-			var normalizedPosition = this.getNormalizedEntityPosition(this.getDigger());
-
-			var coord = normalizedPosition.y * this.getNumCols() + normalizedPosition.x;
-			//this._map[coord] = 0; // Update tunnels in map
-
-			this.updateTunnel();
-
-			//this.entityReachedDestination(entity);
-/*				if (this._map[coord]==E) { // Don't override spawn point
-					this._map[coord] = 0; 
-				} else if (this._map[coord]<0x0F) {
-					//if (this._
-					this._map[coord] |= 0; // Update tunnels in map
-				}*/
-			//}
-			
-
-		//}
+		this.updateTunnel();
 	}
 };

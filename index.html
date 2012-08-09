@@ -19,15 +19,6 @@
 				z-index: 100;
 				/* Don't set canvas dimensions using CCS - contents will stretch */
 			}		
-
-			#debug {
-				display:  none;
-				position: absolute;
-				top:      305px;
-				width:    838px;
-				border:   1px solid #000000;
-				padding:  20px 0;
-			}
 			
 			.song {
 				display: none;
@@ -51,18 +42,18 @@
 			window.onload = function() {
 				var gameCanvas = document.getElementById("game");
 				var mapCanvas  = document.getElementById("map");
-				var debugPanel = document.getElementById("debug");
+				//var debugPanel = document.getElementById("debug");
 
 				var frameTimer = new FrameTimer();
 				
-				Debug.enabled     = true;
+				Debug.enabled     = false;
 				Debug.enableSound = false;
 
 				if (Debug.enabled) {
 					Debug.setFrameTimer(frameTimer);
 					Debug.setFpsTarget(document.getElementById("fps"));
 
-					debugPanel.style.display = "block";
+					//debugPanel.style.display = "block";
 				}
 
 				debug("Document.onload");
@@ -79,12 +70,9 @@
 	</head>
 	<body>		
 		<div id="content">
-			<iframe id="song" width="0" height="0" src="" frameborder="0"></iframe>
-			<canvas id="map" width="840" height="305">NO CANVAS</canvas>
+			<!--<iframe id="song" width="0" height="0" src="" frameborder="0"></iframe>-->
 			<canvas id="game" width="840" height="305">NO CANVAS</canvas>
-			<div id="debug">
-				FPS: <input type="text" id="fps" />
-			</div>
+			<canvas id="map" width="840" height="305">NO CANVAS</canvas>			
 		</div>
 	</body>
 </html>
