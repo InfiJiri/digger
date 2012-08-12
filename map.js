@@ -251,20 +251,24 @@ Map.prototype = {
 		if (x>=this.getNumCols() || y>=this.getNumRows() || x<0 || y<0) {
 			return false;
 		}
-		
-		var np = this.getNormalizedEntityPosition(entity);	
+
+		var np = this.getNormalizedEntityPosition(entity);
 		if ( entity.type != "digger" && !( entity.type=="monster" && entity.isHobbin() ) ) { // Digger and Hobbin get to go anywhere
 			var original = this.getPositionValue(x, y);
 			var value    = original;
+		
+			if (
+				(value & D == 0) &&
+				(value > 0x0F && (value & 0x0F)) ) { // Not a 'sand' tile; monster not allowed to enter
+				this.hnt++; // Not allowed to enter: increase anger
 
-			if (value > 0x0F && (value & 0x0F) ) { // Not a 'sand' tile; monster not allowed to enter
 				return false;
 			}
 
 			if (value == 0) { // All clear.
 				return true;
 			}
-			
+
 			var result = false;
 			if (np.y > y) { // Entering from bottom
 				result =  (value & 4) == 0;
@@ -276,6 +280,10 @@ Map.prototype = {
 				result = (value & 2) == 0;
 			}
 
+			if (!result) {
+				this.hnt++; // Not allowed to enter: increase anger
+			}
+			
 			return result;
 		}
 

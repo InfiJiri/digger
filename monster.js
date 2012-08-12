@@ -53,9 +53,12 @@ Monster.prototype = {
 	vspeed:      2,
 	height:      34,
 	width:       34,
-
+	collisionmask: 0,
+	direction: 0,
 	kill: function() {
 		this.respawn();
+
+		return {score: 275};
 	},
 	respawn: function() {
 		var data   = this._map.getStartData();
@@ -150,8 +153,8 @@ Monster.prototype = {
 			this.penalty += 10; /* Time penalty */
 			entity.penalty += 10;
 			
-			this.hnt += 5;
-			entity.hnt += 5;
+			this.hnt++;
+			entity.hnt++;
 		}
 	  }
 	},

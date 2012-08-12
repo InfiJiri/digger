@@ -50,26 +50,26 @@ var Core = function(canvas, mapCanvas, levels, frameTimer, hud) {
 				break;
 			case 65:
 			case 37: // LEFT
-				digger.direction = 8;
+				digger.direction.x = -1;
 				digger.vx = -digger.speed;
 
 				break;
 			case 87:
 			case 38: // UP
 				digger.vy = -digger.speed;
-				digger.direction = 1;
+				digger.direction.y = -1;
 
 				break;
 			case 68:
 			case 39: // RIGHT
 				digger.vx = digger.speed;
-				digger.direction = 2;
+				digger.direction.x = 1;
 
 				break;
 			case 83:
 			case 40: // DOWN
 				digger.vy = digger.speed;
-				digger.direction = 4;
+				digger.direction.y = 1;
 
 				break;
 		}
@@ -82,16 +82,16 @@ var Core = function(canvas, mapCanvas, levels, frameTimer, hud) {
 			case 68:
 			case 37: // LEFT
 			case 39: // RIGHT
-				digger.vx        = 0;
-				digger.direction = 0;
+				digger.vx          = 0;
+				digger.direction.x = 0;
 				
 				break;
 			case 87:
 			case 83:
 			case 38: // UP
 			case 40: // DOWN
-				digger.vy        = 0;
-				digger.direction = 0;
+				digger.vy          = 0;
+				digger.direction.y = 0;
 				break;
 		}
 	};
@@ -111,6 +111,7 @@ Core.prototype = {
 	_isRespawning: false,
 	_isover:       false,
 	_score:        0,
+	direction:     {x:0, y:0},
 	fps:           50,
 	getDigger: function() { // Player
 		return this._map.getDigger();
@@ -218,15 +219,18 @@ Core.prototype = {
 
 			return;
 		}
+
+		// Detect collisions, and maybe update entity speeds accordingly
+		this.detectcollision();		
 		
 		// Update all entities in the game
 		for( var i=0; i<this._map.entities.length; i++ ) {
 			var entity = this._map.entities[i];
-			if (entity.update) {
+			if (entity.update) {			
 				entity.update();
-			}
+			}		
 		}
-
+		
 		this._map.update();
 		if (this._map.getEmeraldCount()==0) {
 			this.goToNextLevel();
@@ -235,20 +239,19 @@ Core.prototype = {
 
 		this._mapRenderer.update();
 
-		this.detectcollision();	
-
 		this._frametimer.tick();
 	},
 	detectcollision: function() {
 		// Detect collisions between all entities in the game
-	
+		//this.updateGoldCollisionmasks();
+
 		// Not super-efficient, but that can be fixed when shit starts hitting the fan
 		for( var i=0; i<this._map.entities.length; i++ ) {
 			var entity1 = this._map.entities[i];
 			if (entity1.isdisposed) { // Entity is not part of the game anymore
 				continue;
 			}
-
+			
 			for( var j=0; j<this._map.entities.length; j++ ) {
 				if (i==j) { // Don't collide with anything below matrix diagonal
 					break;
@@ -260,7 +263,6 @@ Core.prototype = {
 				}			
 				
 				if (this._map.isEntityTouching(entity1, entity2)) {
-
 					if (entity1.collide) { // Entity 1 has 'collide' function?
 						var data = entity1.collide(entity2);
 

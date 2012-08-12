@@ -55,32 +55,77 @@ Gold.prototype = {
 	height: 34,	
 	vx    : 0,
 	vy    : 0,
-	vspeed : 4,
+	vspeed: 4,
+	hspeed: 4,
 	type: "gold",
 	target: null,
+	direction: {x: 0, y: 0},	
 	isMoving: function() {
 		return this.target!==null;
 	},
 	moveToField: function(x, y) {
 		var np = this.getNormalizedPosition();
 
+		if (np.x!=x) { // Special action for horizontal movement (pushing)
+			if (x < 0 || x >= this._map.getNumCols()) {
+				return false;
+			}
+		
+			var direction = (x - np.x);
+
+			for( var i=0; i<this._map.entities.length; i++ ) {
+				var entity = this._map.entities[i];
+				if (entity.type!="digger" && entity.type!="monster" && entity.type!="gold") {
+					continue; // empty field, or emerald -> go
+				}
+
+				var npEntity = this._map.getNormalizedEntityPosition(entity);
+				if (npEntity.x == x && npEntity.y==y) { // This entity is in the target field, can we move there?
+					if ( !( (entity.type=="gold") ? entity.moveHorizontal(this) : false) ) {
+						return false;
+					}					
+				}
+			}
+		}
+
 		this._map.setPositionValue(np.x, np.y, this._map.getPositionValue(np.x, np.y) & 0x0F); // Update map, remove 'gold'-value
 	
 		this._map.moveEntityToField(this, x, y);
+
+		return true;
 	},
 	moveHorizontal: function(pusherEntity) {
-		var np = this._map.getNormalizedEntityPosition(this);
-		var x  = pusherEntity.vx>0 ? np.x + 1 : np.x - 1; // Determine target
+		var np        = this.getNormalizedPosition();
 
-		if ( x<0 || x==this._map.getNumCols() ) { // Border reached.
-			pusherEntity.vx = 0;
-
-			return;
+		var npEntity = this._map.getNormalizedEntityPosition(pusherEntity);
+		
+		this.direction.x = (pusherEntity.direction.x > 0 ? 1 : -1);
+		if (
+			(npEntity.x<np.x && this.direction.x<0) ||
+			(npEntity.x>np.x && this.direction.x>0) ) {
+			return true;
 		}
 
-		this.vx        = pusherEntity.vx * 2; // Bump bag ahead.
-		
-		this.moveToField( x, np.y );
+		var x = np.x + this.direction.x;
+
+		this.vx = pusherEntity.vx * 2; // Bump bag ahead.
+		if (!this.moveToField( x, np.y )) {
+			this.vx = 0;
+
+			this.direction.x = 0;
+
+			if (pusherEntity.type=="monster" || pusherEntity.type=="digger") {
+				if (pusherEntity.type=="monster") {
+					pusherEntity.hnt++; // Not able to enter: increase anger
+				}
+
+				pusherEntity.x -= pusherEntity.vx;
+			}
+
+			return false;
+		}
+
+		return true;
 	},
 	getNormalizedPosition: function() {
 		return this._map.getNormalizedEntityPosition(this);
@@ -90,15 +135,26 @@ Gold.prototype = {
 			var npEntity = entity.getNormalizedPosition();
 			var npGold = this.getNormalizedPosition();
 
-			if (this.state == "bag" && (entity.type!="monster" || entity.isHobbin()) ) {
+			var npEntityTop    = this._map.getNormalizedPosition(entity.x, entity.y);
+			var npEntityBottom = this._map.getNormalizedPosition(entity.x, entity.y + entity.height);
+
+/*			if (this.state=="bag" || this.state=="bagfall" || this.state=="shake" ) {
+				if ( (npEntityTop.y==npGold.y-1) && entity.vy>0 && (entity.type!="gold") ) {
+					entity.vy = 0;
+				} else if ( (npEntityBottom.y==npGold.y+1) && entity.vy<0 && (entity.type!="gold") ) {
+					entity.vy = 0;
+				}
+			}*/
+			
+			if (this.state == "bag" ) {
 				if ( npEntity.y == npGold.y ) { // Same row: pushing bag
 					if (entity.type == "monster" && entity.isHobbin()) { // Hobbin eats bag
 						this.dispose();
 						return;
 					}
 
-					if ( (npEntity.x<npGold.x && entity.vx>0) ||
-						(npEntity.x>npGold.x && entity.vx<0) ) { // Is the entity pushing the bag?
+					if ( ( (npEntity.x<npGold.x) && (npEntity.y==npGold.y) ) ||
+						( (npEntity.x>npGold.x)  && (npEntity.y==npGold.y) ) ) { // Is the entity pushing the bag?
 						this.moveHorizontal(entity);
 					}
 				}
@@ -106,16 +162,17 @@ Gold.prototype = {
 				this.dispose();
 
 				if (entity.type == "digger") {
-					return {score: 150};
-				}				
+					return {score: 500};
+				}
 			} else if (this.state == "bagfall" && ((entity.y + entity.height)>this.y) && 
 				(entity.type=="monster" || entity.type=="digger")) { // Bag to the face?
-				entity.kill();
+
+				return entity.kill();
 			}
 		} else if (entity.type=="monster" && (this.state=="gold" || this.state=="goldfall") ) { // Both monsters and digger eat gold
 			this.dispose();
 		}
-	},	
+	},
 	fall: function(fallImmediately) { // fallImmediately -> don't shake
 		if (
 			this.state == "gold" || (
@@ -175,6 +232,8 @@ Gold.prototype = {
 			return;
 		}
 
+		//this.updatecollisionmask();
+		
 		if (
 			this.state == "goldfall" &&
 			this._fallGoldDelay <= (new Date).getTime() - this._fallGoldStart ) { // Ha-haaa, gold!

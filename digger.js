@@ -77,6 +77,7 @@ Digger.prototype = {
 	speed:  2,
 	height: 34,
 	width:  34,
+	direction: {x:0,y:0},
 	getNormalizedPosition: function() {
 		return this._map.getNormalizedEntityPosition(this);
 	},
