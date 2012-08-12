@@ -71,7 +71,7 @@ Hud.prototype = {
 	reset: function() {
 		this._isPaused   = false;
 		this._isGameOver = false;
-		this.score = 0;
+		this.score       = 0;
 	},
 	isGameOver: function() {
 		return this._isGameOver;

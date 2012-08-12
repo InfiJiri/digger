@@ -110,6 +110,7 @@ Core.prototype = {
 	_livesLeft:    2,
 	_isRespawning: false,
 	_isover:       false,
+	_score:        0,
 	fps:           50,
 	getDigger: function() { // Player
 		return this._map.getDigger();
@@ -144,6 +145,11 @@ Core.prototype = {
 			
 			//this.togglePause();
 		}
+	},
+	increaseScore: function(value) {
+		this._score += value;
+
+		this._hud.score = this._score;
 	},
 	endLife: function() {
 		if (this._isRespawning) {
@@ -194,6 +200,8 @@ Core.prototype = {
 		this._mapRenderer = new MapRenderer(this._mapCanvas, this._map);		
 		
 		this._hud.reset();
+		this._hud.score = this._score;
+		this._hud.lives = this._livesLeft;
 
 		this._mapRenderer.reset();
 
@@ -257,7 +265,7 @@ Core.prototype = {
 						var data = entity1.collide(entity2);
 
 						if (data && data.score) {
-							this._hud.score += data.score;
+							this.increaseScore(data.score);
 						}
 					}
 
@@ -265,7 +273,7 @@ Core.prototype = {
 						var data = entity2.collide(entity1);
 
 						if (data && data.score) {
-							this._hud.score += data.score;
+							this.increaseScore(data.score);
 						}
 					}
 				}
