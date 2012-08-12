@@ -1,5 +1,16 @@
 var levels = [
 	{ map: [
+		E,	E,	X,	X,	X,	X,	X,	X,	E,	X,	G,	G,	X,	E,	X,	X,	X,	0, 0, 0, S,  
+		E,	0,	0,	0,	0,	0,	X,	E,	E,	X,	X,	X,	X,	E,	X,	E,	X,	0, X, E, E,
+		X,	X,	E,	E,	E,	0,	E,	E,	E,	X,	X,	X,	X,	E,	E,	E,	E,	0, G, G, X,
+		X,	X,	G,	X,	X,	0,	X,	E,	E,	X,	X,	X,	X,	E,	X,	E,	G,	0, X, X, X,
+		E,	X,	X,	X,	X,	0,	X,	X,	E,	X,	G,	G,	X,	E,	X,	X,	X,	0, X, X, X,
+		E,	X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	0, X, X, E,
+		E,	E,	X,	X,	X,	0,	0,	0,	0,	0,	D,	0,	0,	0,	0,	0,	0,	0, E, E, E  ],
+	  background: "background.png",
+	  monsterCount: 3,
+	  numcols:  21},
+	{ map: [
 		X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,  
 		X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,
 		X,	X,	G,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,
@@ -8,7 +19,7 @@ var levels = [
 		X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	E,	E,	E,	X,	X,	X,	X, X, X, X,
 		X,	X,	X,	X,	X,	D,	0,	G,	G,	0,	0,  0,	0,	0,	S,	X,	X,	X, X, X, X  ],
 	  background: "background.png",
-	  monsterCount: 1,
+	  monsterCount: 2,
 	  numcols:  21},
 	{ map: [
 		X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,  

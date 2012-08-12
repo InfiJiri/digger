@@ -135,7 +135,7 @@ Core.prototype = {
 		var self = this;
 		if (this.isPaused()) { // Continue
 			this._nextGameTick = (new Date).getTime(); // Interpolation reset
-			this._intervalId   = setInterval( function() { self.step(); } , 0);
+			this._intervalId   = setInterval( function() { self.step(); }, 0);
 
 			this._hud.togglePause(false);
 		} else { // Pause
@@ -264,7 +264,6 @@ Core.prototype = {
 	},
 	detectcollision: function() {
 		// Detect collisions between all entities in the game
-		//this.updateGoldCollisionmasks();
 
 		// Not super-efficient, but that can be fixed when shit starts hitting the fan
 		for( var i=0; i<this._map.entities.length; i++ ) {
@@ -347,12 +346,10 @@ Core.prototype = {
 		Debug.updateFps();
 	},
 	step: function() {
-		
 		//http://nokarma.org/2011/02/02/javascript-game-development-the-game-loop/index.html
 		var loops     = 0;
 		var skipTicks = 1000 / this.fps;
 
-		// TODO use FrameTimer?
 		while ((new Date).getTime() > this._nextGameTick) {
 		  this.update();
 

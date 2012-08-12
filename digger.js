@@ -155,8 +155,8 @@ Digger.prototype = {
 			frame.y,
 			this.width,
 			this.height,
-			this.x + this.vx * interpolation, // Move this to 'update' or some other place that makes more sense
-			this.y + this.vy * interpolation, // Move this to 'update' or some other place that makes more sense
+			this.x + this.vx * interpolation,
+			this.y + this.vy * interpolation,
 			this.width,
 			this.height);
 	},

@@ -50,8 +50,10 @@ var Hud = function(canvas, hudSize) {
 		}
 	});
 
-	this._image = new Image();
-	this._image.src = "images/chars.png";	
+	this._image         = new Image();
+	this._image.src     = "images/chars.png";
+	this._lifeImage     = new Image();
+	this._lifeImage.src = "images/life.png";
 };
 
 Hud.prototype = {
@@ -103,20 +105,21 @@ Hud.prototype = {
 		}
 	},
 	_drawScore: function() {
-		this._drawText(this.score);
+		var result = this._drawText(this.score);
 
-		this._drawLives();
+		this._drawLives(result.width + result.offset);
 	},
 	_drawText: function(text, centerMessage) {
 		xOffset = 0;
 
 		var width  = this._sprites.getWidth();   // character width
-		var height = this._sprites.getHeight();  // character height		
-
-		var chars = text.toString().toLowerCase();
+		var height = this._sprites.getHeight();  // character height
+		
+		var chars     = text.toString().toLowerCase();
+		var textWidth = (chars.length * width);
 
 		if (centerMessage) {
-			xOffset = (this.getWidth() - (chars.length * width)) * 0.5;
+			xOffset = (this.getWidth() - textWidth) * 0.5;
 		}
 
 		for( var i=0; i<chars.length; i++ ) {
@@ -137,25 +140,26 @@ Hud.prototype = {
 				width,
 				height);
 		}
+
+		return {offset: xOffset, width: textWidth};
 	},
-	_drawLives: function() {
-		var width  = this._sprites.getWidth();   // character width
+	_drawLives: function(offset) {
+		width      = 34; // live width
 		var height = this._sprites.getHeight();  // character height		
 
 		// Draw lives
-		var x = 200; // FIXME 
+		var y = 0;
+		var x = offset + this._sprites.getWidth(); // FIXME 
 		for( var i=0; i<this.lives; i++ ) {
 			x += i * width;
 
-			var frame = this._sprites.getOffset("x"); // FIXME
-
-			this._context.drawImage(this._image,
-				frame.x,
-				frame.y,
+			this._context.drawImage(this._lifeImage,
+				0,
+				0,
 				width,
 				height,
 				x,
-				0,
+				y,
 				width,
 				height);			
 		}

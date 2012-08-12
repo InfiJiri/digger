@@ -118,6 +118,7 @@ Monster.prototype = {
 		if ( (this.x>entity.x && this.direction.x<0) ||
 			(this.x<entity.x && this.direction.x>0)) {
 			this.direction.x *= -1;
+			entity.direction.x *= -1;
 
 			increasePenalty = true;
 		}
@@ -125,6 +126,7 @@ Monster.prototype = {
 		// Horizontal reverse entity?
 		if ( (entity.x>this.x && entity.direction.x<0) ||
 			(entity.x<this.x && entity.direction.x>0)) {
+			this.direction.x *= -1;
 			entity.direction.x *= -1;
 
 			increasePenalty = true;

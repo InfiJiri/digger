@@ -138,14 +138,14 @@ Gold.prototype = {
 			var npEntityTop    = this._map.getNormalizedPosition(entity.x, entity.y);
 			var npEntityBottom = this._map.getNormalizedPosition(entity.x, entity.y + entity.height);
 
-/*			if (this.state=="bag" || this.state=="bagfall" || this.state=="shake" ) {
+			if (this.state=="bag" || this.state=="bagfall" || this.state=="shake" ) { // Vertical collision
 				if ( (npEntityTop.y==npGold.y-1) && entity.vy>0 && (entity.type!="gold") ) {
-					entity.vy = 0;
+					entity.y -= entity.vy;
 				} else if ( (npEntityBottom.y==npGold.y+1) && entity.vy<0 && (entity.type!="gold") ) {
-					entity.vy = 0;
+					entity.y -= entity.vy;
 				}
-			}*/
-			
+			}
+
 			if (this.state == "bag" ) {
 				if ( npEntity.y == npGold.y ) { // Same row: pushing bag
 					if (entity.type == "monster" && entity.isHobbin()) { // Hobbin eats bag
