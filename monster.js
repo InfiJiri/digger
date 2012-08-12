@@ -98,7 +98,6 @@ Monster.prototype = {
 			this.width,
 			this.height);
 	},
-
 	update: function() {
 		this.step();
 	},

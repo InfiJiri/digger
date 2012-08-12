@@ -1,3 +1,10 @@
+// Array Remove - By John Resig (MIT Licensed)
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};
+
 var Core = function(canvas, mapCanvas, levels, frameTimer, hud) {
 	debug("Core.init");
 
@@ -169,6 +176,20 @@ Core.prototype = {
 			
 			var self   = this;
 			var digger = this.getDigger();
+			var entities = [];
+			for( var i=0; i<this._map.entities.length; i++ ) {
+				var entity = this._map.entities[i];
+				if (entity.type!="monster") {
+					entities.push(this._map.entities[i]);
+				}
+
+				if (entity.type=="spawnpoint") {
+					entity.reset();
+				}
+			}
+
+			this._map.entities = entities;
+			
 			setTimeout(function() { digger.respawn(); self._isRespawning=false }, 5000);
 		}
 

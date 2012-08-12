@@ -10,6 +10,7 @@ SpawnPoint.prototype = {
 	y: 0,
 	height:   34,
 	width:    34,
+	type: "spawnpoint",
 	_currentMonsterCount: 0,
 	monsterCount: 0,
 	delay: 4000, // ms
@@ -28,7 +29,9 @@ SpawnPoint.prototype = {
 			this._timerStart = (new Date).getTime();
 		}
 	},
-
+	reset: function() {
+		this._currentMonsterCount = 0;
+	},
 	getNormalizedPosition: function() {
 		return this._map.getNormalizedEntityPosition(this);
 	},

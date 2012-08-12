@@ -19,7 +19,7 @@ var levels = [
 		X,	X,	X,	X,	X,	X,	X,	X,	0,	X,	X,	E,	E,	E,	0,	0,	0,	0, 0, 0, 0,
 		X,	X,	X,	X,	X,	X,	X,	X,	0,	0,	0,	0,	0,	0,	0,	X,	X,	X, X, X, X  ],
 	  background: "background.png",
-	  monsterCount: 1,
+	  monsterCount: 3,
 	  numcols:  21},
 	{ map: [
 		X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, X,  
@@ -30,6 +30,6 @@ var levels = [
 		X,	0,	X,	X,	X,	X,	X,	X,	0,	X,	X,	X,	X,	X,	X,	X,	X,	X, X, X, 0,
 		X,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 0, 0, 0  ],
 	  background: "background.png",
-	  monsterCount: 0,
+	  monsterCount: 5,
 	  numcols:  21},
 ];
