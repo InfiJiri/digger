@@ -114,6 +114,10 @@ Monster.prototype = {
 	  if (entity.type=="monster") {
 		var increasePenalty = false;
 		
+		if (this.isHobbin()) {
+			return;
+		}
+		
 		// Horizontal reverse this object?
 		if ( (this.x>entity.x && this.direction.x<0) ||
 			(this.x<entity.x && this.direction.x>0)) {
@@ -136,6 +140,7 @@ Monster.prototype = {
 		if ( (this.y>entity.y && this.direction.y<0) ||
 			(this.y<entity.y && this.direction.y>0)) {
 			this.direction.y *= -1;
+			entity.direction.y *= -1;
 
 			increasePenalty = true;
 		}
@@ -144,6 +149,7 @@ Monster.prototype = {
 		if ( (entity.y>this.y && entity.direction.y<0) ||
 			(entity.y<this.y && entity.direction.y>0)) {
 			entity.direction.y *= -1;
+			this.direction.y *= -1;
 
 			increasePenalty = true;
 		}
